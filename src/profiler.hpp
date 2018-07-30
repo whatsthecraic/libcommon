@@ -14,6 +14,7 @@
 
 #include "error.hpp"
 #include "details/profiler.hpp"
+#include "database.hpp"
 
 /*****************************************************************************
  *                                                                           *
@@ -79,6 +80,11 @@ public:
      * Stop the recording
      */
     CachesSnapshot stop();
+
+    /**
+     * Retrieve a data record ready to be stored in the database
+     */
+    Database::BaseRecord data_record();
 };
 
 } // namespace common
@@ -136,6 +142,11 @@ public:
      * Stop the recording
      */
     BranchMispredictionsSnapshot stop();
+
+    /**
+     * Retrieve a data record ready to be stored in the database
+     */
+    Database::BaseRecord data_record();
 };
 
 } // namespace common

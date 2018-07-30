@@ -1,5 +1,5 @@
-#ifndef _DATABASE_HPP
-#define _DATABASE_HPP
+#ifndef COMMON_DATABASE_HPP
+#define COMMON_DATABASE_HPP
 
 #include <memory>
 #include <string>
@@ -51,7 +51,7 @@ private:
     std::vector<ExecutionPtr> m_executions; // list of executions still valid/running
     bool m_keep_alive; // whether to keep the connection opened to the database, after each operation
 
-public: // Builders
+public: // Record
     enum FieldType { TYPE_TEXT, TYPE_INTEGER, TYPE_REAL };
 
     struct AbstractField {
@@ -81,15 +81,67 @@ public: // Builders
         RealField(const std::string& key, double value);
     };
 
+    class BaseRecord {
+    protected:
+        std::vector<std::shared_ptr<AbstractField>> m_fields;
+    public:
+        void add(const std::string& key, const std::string& value);
+        void add(const std::string& key, int64_t value);
+        void add(const std::string& key, uint64_t value);
+        void add(const std::string& key, double value);
+        void add(const BaseRecord& record);
+        const std::vector<std::shared_ptr<AbstractField>>& fields() const;
+        void dump(std::ostream& out) const;
+    };
+
+    template<typename Subclass>
+    class Record : public BaseRecord {
+    protected:
+        void check_valid(){ /* nop */ }
+
+    public:
+        Subclass& operator()(const std::string& key, const std::string& value){
+            Subclass::check_valid(); // callback to check the instance has not been already finalised
+            add(key, value);
+            return *this;
+        }
+
+        Subclass& operator()(const std::string& key, int64_t value){
+            Subclass::check_valid();
+            add(key, value);
+            return *this;
+        }
+
+        Subclass& operator()(const std::string& key, double value){
+            Subclass::check_valid();
+            add(key, value);
+            return *this;
+        }
+
+        // Treat all integer types as int64_t
+        template<typename T>
+        std::enable_if_t<std::is_integral_v<T>, Subclass&>
+        operator()(const std::string& key, T value) {
+            return operator()(key, static_cast<int64_t>(value));
+        }
+
+        template<typename Other>
+        Subclass& operator()(const BaseRecord& other){
+            Subclass::check_valid();
+            add(other);
+            return *this;
+        }
+    };
+
+
 public: // Results
     friend class OutcomeBuilder;
 
-    class OutcomeBuilder {
+    class OutcomeBuilder : public Record<OutcomeBuilder> {
         friend class Execution;
 
         std::shared_ptr<Execution> m_instance;
         const std::string m_table_name;
-        std::vector<std::unique_ptr<AbstractField>> m_fields;
 
         Database* database() const;
 
@@ -101,25 +153,12 @@ public: // Results
 
         ~OutcomeBuilder() noexcept(false);
 
-        OutcomeBuilder& operator()(const std::string& key, const std::string& value);
-
-        OutcomeBuilder& operator()(const std::string& key, int64_t value);
-
-        OutcomeBuilder& operator()(const std::string& key, double value);
-
-        // Treat all integer types as int64_t
-        template<typename T>
-        std::enable_if_t<std::is_integral_v<T>, OutcomeBuilder&>
-        operator()(const std::string& key, T value) {
-            return operator()(key, static_cast<int64_t>(value));
-        }
-
         void dump(std::ostream& out) const;
     };
 
 public: // Execution
 
-    class ExecutionBuilder {
+    class ExecutionBuilder : public Record<ExecutionBuilder> {
         friend class Database;
 
         Database* m_instance;
@@ -127,21 +166,11 @@ public: // Execution
 
         ExecutionBuilder(Database* instance);
 
+    protected:
+        void check_valid();
+
     public:
         ~ExecutionBuilder() noexcept(false);
-
-        ExecutionBuilder& operator()(const std::string& key, const std::string& value);
-
-        ExecutionBuilder& operator()(const std::string& key, int64_t value);
-
-        ExecutionBuilder& operator()(const std::string& key, double value);
-
-        // Treat all integer types as int64_t
-        template<typename T>
-        std::enable_if_t<std::is_integral_v<T>, ExecutionBuilder&>
-        operator()(const std::string& key, T value) {
-            return operator()(key, static_cast<int64_t>(value));
-        }
 
         std::shared_ptr<Execution> save();
     };
@@ -264,6 +293,10 @@ public:
 
 } // namespace common
 
-std::ostream& operator<<(std::ostream& outstream, const common::Database::OutcomeBuilder& instance);
+/**
+ * Print the content of a record
+ */
+std::ostream& operator<<(std::ostream& out, const common::Database::BaseRecord& record);
+std::ostream& operator<<(std::ostream& out, const common::Database::OutcomeBuilder& record);
 
-#endif //_DATABASE_HPP
+#endif // COMMON_DATABASE_HPP

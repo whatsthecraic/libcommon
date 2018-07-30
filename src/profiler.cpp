@@ -201,6 +201,15 @@ CachesSnapshot CachesProfiler::stop(){
     return m_result;
 }
 
+Database::BaseRecord CachesProfiler::data_record(){
+    auto data = snapshot();
+    Database::BaseRecord record;
+    record.add("cache_l1_misses", data.m_cache_l1_misses);
+    record.add("cache_llc_misses", data.m_cache_llc_misses);
+    record.add("cache_tlb_misses", data.m_cache_tlb_misses);
+    return record;
+}
+
 void CachesSnapshot::operator+=(CachesSnapshot snapshot){
     m_cache_l1_misses += snapshot.m_cache_l1_misses;
     m_cache_llc_misses += snapshot.m_cache_llc_misses;
@@ -263,6 +272,17 @@ void BranchMispredictionsSnapshot::operator+=(BranchMispredictionsSnapshot snaps
     m_cache_l1_misses += snapshot.m_cache_l1_misses;
     m_cache_llc_misses += snapshot.m_cache_llc_misses;
 }
+
+Database::BaseRecord BranchMispredictionsProfiler::data_record(){
+    auto data = snapshot();
+    Database::BaseRecord record;
+    record.add("conditional_branches", data.m_conditional_branches);
+    record.add("branch_mispredictions", data.m_branch_mispredictions);
+    record.add("cache_l1_misses", data.m_cache_l1_misses);
+    record.add("cache_llc_misses", data.m_cache_llc_misses);
+    return record;
+}
+
 
 } // namespace common
 

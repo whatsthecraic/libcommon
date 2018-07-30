@@ -116,10 +116,6 @@ string Timer<with_barrier>::to_string() const{
         return to_microseconds(d);
     } else if(time_in_nanosecs <= (uint64_t) pow(10, 9)) {
         return to_milliseconds(d);
-//  } else {
-//        return to_seconds(d);
-//    }
-
     } else if(time_in_nanosecs <= (uint64_t) pow(10, 12)){
         return to_seconds(d);
     } else if(time_in_nanosecs <= (uint64_t) pow(10, 12) * 60){

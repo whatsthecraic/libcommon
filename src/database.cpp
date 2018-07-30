@@ -193,7 +193,7 @@ public:
 
 /*****************************************************************************
  *                                                                           *
- *  Builders                                                                 *
+ *  Record                                                                   *
  *                                                                           *
  *****************************************************************************/
 Database::AbstractField::AbstractField(const string& key, FieldType type) : key(key), type(type) {
@@ -211,6 +211,56 @@ Database::AbstractField::~AbstractField() { }
 Database::TextField::TextField(const string& key, const string& value) : AbstractField{ key, TYPE_TEXT }, value(value) { }
 Database::IntegerField::IntegerField(const string& key, int64_t value) : AbstractField{ key, TYPE_INTEGER }, value(value) { }
 Database::RealField::RealField(const string& key, double value) : AbstractField{ key, TYPE_REAL }, value(value) { }
+
+void Database::BaseRecord::add(const string& key, const string& value) {
+    shared_ptr<AbstractField> ptr(new TextField(key, value));
+    m_fields.push_back(move(ptr));
+}
+
+void Database::BaseRecord::add(const string& key, int64_t value) {
+    shared_ptr<AbstractField> ptr(new IntegerField(key, value));
+    m_fields.push_back(move(ptr));
+}
+
+void Database::BaseRecord::add(const std::string& key, uint64_t value){
+    add(key, static_cast<int64_t>(value));
+}
+
+void Database::BaseRecord::add(const string& key, double value) {
+    shared_ptr<AbstractField> ptr(new RealField(key, value));
+    m_fields.push_back(move(ptr));
+}
+
+void Database::BaseRecord::add(const BaseRecord& record) {
+    for(auto ptr : record.fields()){
+        m_fields.push_back(ptr);
+    }
+}
+
+const vector<shared_ptr<Database::AbstractField>>& Database::BaseRecord::fields() const{
+    return m_fields;
+}
+
+void Database::BaseRecord::dump(std::ostream& out) const{
+    for(size_t i = 0; i < m_fields.size(); i++){
+        auto e = m_fields[i];
+        out << "[" << (i+1) << "] name: " << e->key << ", type: ";
+        switch(e->type){
+        case TYPE_TEXT:
+            out << "text, value: \"" << dynamic_cast<TextField*>(e.get())->value << "\"";
+            break;
+        case TYPE_INTEGER:
+            out << "int, value: " << dynamic_cast<IntegerField*>(e.get())->value;
+            break;
+        case TYPE_REAL:
+            out << "real, value: " << dynamic_cast<RealField*>(e.get())->value;
+            break;
+        default:
+            out << "unknown (" << e->type << ")";
+        }
+        out << "\n";
+    }
+}
 
 /*****************************************************************************
  *                                                                           *
@@ -240,27 +290,12 @@ Database::ExecutionBuilder::~ExecutionBuilder() noexcept(false) {
     if(m_instance != nullptr) save();
 }
 
-Database::ExecutionBuilder& Database::ExecutionBuilder::operator()(const string& key, const string& value){
+void Database::ExecutionBuilder::check_valid() {
     if(m_instance == nullptr) ERROR("Instance already finalised");
-    unique_ptr<AbstractField> ptr(new TextField(key, value));
-    m_fields.push_back(move(ptr));
-    return *this;
-}
-Database::ExecutionBuilder& Database::ExecutionBuilder::operator()(const string& key, int64_t value){
-    if(m_instance == nullptr) ERROR("Instance already finalised");
-    unique_ptr<AbstractField> ptr(new IntegerField(key, value));
-    m_fields.push_back(move(ptr));
-    return *this;
-}
-Database::ExecutionBuilder& Database::ExecutionBuilder::operator()(const string& key, double value){
-    if(m_instance == nullptr) ERROR("Instance already finalised");
-    unique_ptr<AbstractField> ptr(new RealField(key, value));
-    m_fields.push_back(move(ptr));
-    return *this;
 }
 
 std::shared_ptr<Database::Execution> Database::ExecutionBuilder::save() {
-    if(m_instance == nullptr) ERROR("Already finalised");
+    check_valid();
 
     int rc = 0;
     Connection connection(m_instance);
@@ -492,25 +527,6 @@ Database::OutcomeBuilder::~OutcomeBuilder() noexcept(false) {
     save();
 }
 
-Database::OutcomeBuilder& Database::OutcomeBuilder::operator()(const string& key, const string& value){
-    if(m_instance == nullptr) ERROR("Instance already finalised");
-    unique_ptr<AbstractField> ptr(new TextField(key, value));
-    m_fields.push_back(move(ptr));
-    return *this;
-}
-Database::OutcomeBuilder& Database::OutcomeBuilder::operator()(const string& key, int64_t value){
-    if(m_instance == nullptr) ERROR("Instance already finalised");
-    unique_ptr<AbstractField> ptr(new IntegerField(key, value));
-    m_fields.push_back(move(ptr));
-    return *this;
-}
-Database::OutcomeBuilder& Database::OutcomeBuilder::operator()(const string& key, double value){
-    if(m_instance == nullptr) ERROR("Instance already finalised");
-    unique_ptr<AbstractField> ptr(new RealField(key, value));
-    m_fields.push_back(move(ptr));
-    return *this;
-}
-
 shared_ptr<Database::Execution> Database::OutcomeBuilder::execution() const {
     if(m_instance.get() == nullptr || !m_instance->valid()) ERROR("Invalid execution instance");
     return m_instance;
@@ -550,7 +566,7 @@ void Database::OutcomeBuilder::save(){ // this method can be invoked only by the
             sqlcc << "CREATE TABLE " << m_table_name << "( ";
             sqlcc << "id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, ";
             sqlcc << "exec_id INTEGER NOT NULL, ";
-            for(auto& e : m_fields){
+            for(auto e : m_fields){
                 sqlcc << e->key;
                 switch(e->type){
                 case TYPE_TEXT:
@@ -620,28 +636,17 @@ void Database::OutcomeBuilder::save(){ // this method can be invoked only by the
 }
 
 void Database::OutcomeBuilder::dump(std::ostream& out) const{
-    out << "table: " << m_table_name << ", # fields: " << m_fields.size() << "\n";
-    for(size_t i = 0; i < m_fields.size(); i++){
-        auto& e = m_fields[i];
-        out << "[" << (i+1) << "] name: " << e->key << ", type: ";
-        switch(e->type){
-        case TYPE_TEXT:
-            out << "text, value: \"" << dynamic_cast<TextField*>(e.get())->value << "\"";
-            break;
-        case TYPE_INTEGER:
-            out << "int, value: " << dynamic_cast<IntegerField*>(e.get())->value;
-            break;
-        case TYPE_REAL:
-            out << "real, value: " << dynamic_cast<RealField*>(e.get())->value;
-            break;
-        default:
-            out << "unknown (" << e->type << ")";
-        }
-        out << "\n";
-    }
+    out << "table: " << m_table_name << ", # fields: " << fields().size() << "\n";
+    BaseRecord::dump(out);
+}
+
+ostream& operator<<(ostream& out, const Database::BaseRecord& record) {
+    record.dump(out);
+    return out;
 }
 
 ostream& operator<<(ostream& out, const Database::OutcomeBuilder& instance) {
     instance.dump(out);
     return out;
 }
+
