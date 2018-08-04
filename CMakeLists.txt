@@ -19,8 +19,8 @@ include(LibBacktrace)
 include(SQLite3)
 
 # Interface
-add_library(libcommon_api INTERFACE)
-target_include_directories(libcommon_api INTERFACE include/)
+add_library(interface INTERFACE)
+target_include_directories(interface INTERFACE include/)
 
 # Sources, it defines the library common
 add_subdirectory(src obj)
@@ -29,11 +29,5 @@ add_subdirectory(src obj)
 add_library(libcommon INTERFACE)
 target_link_libraries(libcommon INTERFACE common)
 
-
 # Tests
 add_subdirectory(test)
-
-## Create the final executable
-#add_executable(cxx_database main.cpp)
-#target_link_libraries(cxx_database common)
-

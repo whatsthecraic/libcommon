@@ -7,11 +7,12 @@ add_library(common EXCLUDE_FROM_ALL
     error.cpp
     profiler.cpp
     quantity.cpp
+    system_concurrency.cpp
     timer.cpp
 )
 
 # Headers
-target_link_libraries(common PUBLIC libcommon_api)
+target_link_libraries(common PUBLIC interface)
 
 # PAPI, for profiling
 find_package(PAPI REQUIRED)
@@ -23,6 +24,7 @@ target_link_libraries(common PRIVATE libsqlite3 libbacktrace pthread)
 target_compile_options(common PRIVATE -Wall -Werror)
 target_include_directories(common PUBLIC "${CMAKE_SOURCE_DIR}/include")
 
+# Debug flags
 if((CMAKE_BUILD_TYPE STREQUAL "Debug") OR (NOT CMAKE_BUILD_TYPE))
     CHECK_CXX_COMPILER_FLAG("-fno-limit-debug-info" no_limit_debug_info)
     if(no_limit_debug_info)
@@ -33,3 +35,15 @@ if((CMAKE_BUILD_TYPE STREQUAL "Debug") OR (NOT CMAKE_BUILD_TYPE))
         target_compile_options(common PRIVATE "-fno-omit-frame-pointer")
     endif()
 endif()
+
+# Numa support
+find_package(Numa)
+if(NUMA_FOUND)
+    target_link_libraries(common PRIVATE ${NUMA_LIBRARY})
+    set_property(SOURCE system_concurrency.cpp APPEND PROPERTY COMPILE_DEFINITIONS HAVE_LIBNUMA)
+    # do not add -isystem /usr/include : https://gcc.gnu.org/bugzilla/show_bug.cgi?id=70129
+    if(NOT ${NUMA_INCLUDE_DIR} MATCHES "/usr/include")
+        set_property(SOURCE system_concurrency.cpp APPEND PROPERTY INCLUDE_DIRECTORIES ${NUMA_INCLUDE_DIR})
+    endif()
+endif()
+
