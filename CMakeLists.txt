@@ -11,7 +11,7 @@ project(common)
 set(CMAKE_CXX_STANDARD 17)
 
 # Search for project modules in /build-aux/
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/build-aux/")
+list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/build-aux/")
 
 # Helpers
 include(GoogleTest)

@@ -8,5 +8,5 @@ endif()
 
 if(NOT SQLITE3_SYSTEM OR NOT SQLITE3_FOUND)
     message(STATUS "Using the bundled SQLite3 library")
-    add_subdirectory("${CMAKE_SOURCE_DIR}/lib/sqlite3/")
+    add_subdirectory("${PROJECT_SOURCE_DIR}/lib/sqlite3/")
 endif()

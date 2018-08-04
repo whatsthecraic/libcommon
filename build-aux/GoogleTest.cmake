@@ -8,7 +8,7 @@ if(NOT GIT_EXECUTABLE)
 endif()
 
 # Download and update google test
-set(gtest_src_directory "${CMAKE_SOURCE_DIR}/lib/google-test/") # where the library will be downloaded
+set(gtest_src_directory "${PROJECT_SOURCE_DIR}/lib/google-test/") # where the library will be downloaded
 if(NOT EXISTS "${gtest_src_directory}/CMakeLists.txt")
     file(REMOVE_RECURSE "${gtest_src_directory}") # just in case the folder already exists
     execute_process(COMMAND ${GIT_EXECUTABLE} clone https://github.com/google/googletest.git ${gtest_src_directory}

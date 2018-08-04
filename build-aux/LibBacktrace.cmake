@@ -21,7 +21,7 @@ endif()
 ExternalProject_Add(libbacktrace_external
         GIT_REPOSITORY "https://github.com/ianlancetaylor/libbacktrace" # upstream repository
         GIT_TAG "master"
-        SOURCE_DIR "${CMAKE_SOURCE_DIR}/lib/backtrace" # where to download the library
+        SOURCE_DIR "${PROJECT_SOURCE_DIR}/lib/backtrace" # where to download the library
         BINARY_DIR "${CMAKE_BINARY_DIR}/lib/backtrace/build" # where the library is going to be built
         PREFIX "${CMAKE_BINARY_DIR}/lib/backtrace/cmake" # cmake logs and other rubbish
         INSTALL_DIR "${CMAKE_BINARY_DIR}/lib/backtrace" # not sure?
