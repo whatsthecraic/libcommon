@@ -18,12 +18,17 @@ include(GoogleTest)
 include(LibBacktrace)
 include(SQLite3)
 
+# Interface
+add_library(libcommon_api INTERFACE)
+target_include_directories(libcommon_api INTERFACE include/)
+
 # Sources, it defines the library common
 add_subdirectory(src obj)
 
+
 add_library(libcommon INTERFACE)
 target_link_libraries(libcommon INTERFACE common)
-target_include_directories(libcommon INTERFACE "${CMAKE_SOURCE_DIR}/src")
+
 
 # Tests
 add_subdirectory(test)

@@ -2,14 +2,16 @@ include(CheckCXXCompilerFlag)
 
 # Create a new library
 add_library(common EXCLUDE_FROM_ALL
-    backtrace.cpp backtrace.hpp
-    database.cpp database.hpp
-    error.cpp error.hpp
-    optimisation.hpp
-    profiler.cpp profiler.hpp details/profiler.hpp
-    quantity.cpp quantity.hpp
-    timer.cpp timer.hpp
+    backtrace.cpp
+    database.cpp
+    error.cpp
+    profiler.cpp
+    quantity.cpp
+    timer.cpp
 )
+
+# Headers
+target_link_libraries(common PUBLIC libcommon_api)
 
 # PAPI, for profiling
 find_package(PAPI REQUIRED)
@@ -19,6 +21,7 @@ target_link_libraries(common PRIVATE ${PAPI_LIBRARIES})
 # Support for backtrace
 target_link_libraries(common PRIVATE libsqlite3 libbacktrace pthread)
 target_compile_options(common PRIVATE -Wall -Werror)
+target_include_directories(common PUBLIC "${CMAKE_SOURCE_DIR}/include")
 
 if((CMAKE_BUILD_TYPE STREQUAL "Debug") OR (NOT CMAKE_BUILD_TYPE))
     CHECK_CXX_COMPILER_FLAG("-fno-limit-debug-info" no_limit_debug_info)
