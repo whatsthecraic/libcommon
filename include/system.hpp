@@ -8,8 +8,35 @@
 #ifndef COMMON_SYSTEM_HPP
 #define COMMON_SYSTEM_HPP
 
+#include <string>
+
 namespace common {
 
+/**
+ * Retrieve the current hostname
+ */
+std::string hostname();
+
+/**
+ * Try to retrieve the last git commit for the current program (not libcommon). It returns an empty string in case of failure.
+ * The idea is that a build is performed inside some directory from the source, e.g. <src>/build. Then the git repository
+ * should be visible as part of <src>.
+ */
+std::string git_last_commit(); // impl in system_introspection.cpp
+
+namespace filesystem {
+
+/**
+ * Retrieve the absolute path to the program executable
+ */
+std::string path_executable(); // impl in filesystem.cpp
+
+/**
+ * Retrieve the absolute path to the directory of the executable
+ */
+std::string directory_executable(); // impl in filesystem.cpp
+
+} // namespace filesystem
 
 /**
  * Concurrency related settings
@@ -66,8 +93,6 @@ void unpin_thread(bool numa = true);
 
 
 } // concurrency
-
-
 
 } // common
 

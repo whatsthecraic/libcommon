@@ -20,7 +20,7 @@ include(SQLite3)
 
 # Interface
 add_library(interface INTERFACE)
-target_include_directories(interface INTERFACE include/)
+target_include_directories(interface INTERFACE include)
 
 # Sources, it defines the library common
 add_subdirectory(src obj)

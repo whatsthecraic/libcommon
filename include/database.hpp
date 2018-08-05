@@ -101,21 +101,21 @@ public: // Record
 
     public:
         Subclass& operator()(const std::string& key, const std::string& value){
-            Subclass::check_valid(); // callback to check the instance has not been already finalised
+            reinterpret_cast<Subclass*>(this)->check_valid(); // callback to check the instance has not been already finalised
             add(key, value);
-            return *this;
+            return reinterpret_cast<Subclass&>(*this);
         }
 
         Subclass& operator()(const std::string& key, int64_t value){
-            Subclass::check_valid();
+            reinterpret_cast<Subclass*>(this)->check_valid();
             add(key, value);
-            return *this;
+            return reinterpret_cast<Subclass&>(*this);
         }
 
         Subclass& operator()(const std::string& key, double value){
-            Subclass::check_valid();
+            reinterpret_cast<Subclass*>(this)->check_valid();
             add(key, value);
-            return *this;
+            return reinterpret_cast<Subclass&>(*this);
         }
 
         // Treat all integer types as int64_t
@@ -127,9 +127,9 @@ public: // Record
 
         template<typename Other>
         Subclass& operator()(const BaseRecord& other){
-            Subclass::check_valid();
+            reinterpret_cast<Subclass*>(this)->check_valid();
             add(other);
-            return *this;
+            return reinterpret_cast<Subclass&>(*this);
         }
     };
 
@@ -160,9 +160,7 @@ public: // Execution
 
     class ExecutionBuilder : public Record<ExecutionBuilder> {
         friend class Database;
-
         Database* m_instance;
-        std::vector<std::unique_ptr<AbstractField>> m_fields;
 
         ExecutionBuilder(Database* instance);
 

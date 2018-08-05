@@ -10,7 +10,7 @@
 
 #include <cinttypes>
 #include <cstddef>
-#include <ostream>
+#include <iostream>
 #include <string>
 
 #include "error.hpp"
@@ -26,6 +26,7 @@ DEFINE_EXCEPTION(QuantityError);
  * It represents a computer quantity, e.g. 4 K or 8 GB, where 1k = 1024
  */
 class Quantity {
+    friend ::std::istream& operator>>(::std::istream& in, ::common::Quantity& q);
 private:
     uint64_t m_magnitude; // the actual magnitude, either in bytes or as absolute number
     bool m_is_byte_quantity; // append the bytes suffix
@@ -88,14 +89,15 @@ public:
     Quantity& operator*=(int64_t value);
     Quantity& operator/=(int64_t value);
 };
+
+    Quantity operator+(Quantity q1, int64_t q2);
+    Quantity operator-(Quantity q1, int64_t q2);
+    Quantity operator*(Quantity q1, int64_t q2);
+    Quantity operator/(Quantity q1, int64_t q2);
+
+    ::std::ostream& operator<<(::std::ostream& out, const Quantity& q);
+    ::std::ostream& operator<<(::std::ostream& out, const Quantity* q);
+    ::std::istream& operator>>(::std::istream& in, Quantity& q);
 } // namespace common
-
-common::Quantity operator+(common::Quantity q1, int64_t q2);
-common::Quantity operator-(common::Quantity q1, int64_t q2);
-common::Quantity operator*(common::Quantity q1, int64_t q2);
-common::Quantity operator/(common::Quantity q1, int64_t q2);
-
-std::ostream& operator<<(std::ostream& out, const common::Quantity& q);
-std::ostream& operator<<(std::ostream& out, const common::Quantity* q);
 
 #endif //COMMON_QUANTITY_HPP

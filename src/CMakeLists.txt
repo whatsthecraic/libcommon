@@ -5,9 +5,12 @@ add_library(common EXCLUDE_FROM_ALL
     backtrace.cpp
     database.cpp
     error.cpp
+    filesystem.cpp
+    math.cpp
     profiler.cpp
     quantity.cpp
     system_concurrency.cpp
+    system_introspection.cpp
     timer.cpp
 )
 
@@ -22,7 +25,6 @@ target_link_libraries(common PRIVATE ${PAPI_LIBRARIES})
 # Support for backtrace
 target_link_libraries(common PRIVATE libsqlite3 libbacktrace pthread)
 target_compile_options(common PRIVATE -Wall -Werror)
-target_include_directories(common PUBLIC "${CMAKE_SOURCE_DIR}/include")
 
 # Debug flags
 if((CMAKE_BUILD_TYPE STREQUAL "Debug") OR (NOT CMAKE_BUILD_TYPE))

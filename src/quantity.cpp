@@ -151,12 +151,12 @@ string Quantity::to_string(Quantity::Unit unit) const {
     }
 }
 
-ostream& operator<<(ostream& out, const Quantity& q) {
+ostream& (::common::operator<<)(ostream& out, const Quantity& q) {
     out << q.to_string();
     return out;
 }
 
-ostream& operator<<(ostream& out, const Quantity* q){
+ostream& (::common::operator<<)(ostream& out, const Quantity* q){
     out << "ptr: 0x" << std::hex << (void*) q << std::dec;
     if(q != nullptr){
         out << " (" << q->to_string() << ")";
@@ -165,7 +165,15 @@ ostream& operator<<(ostream& out, const Quantity* q){
 }
 
 
-Quantity operator+(Quantity q1, int64_t q2) {
+std::istream& (::common::operator>>)(std::istream& in, common::Quantity& q){
+    string value;
+    in >> value;
+    auto magnitude = Quantity::parse(value, q.is_byte_quantity() ? Quantity::ByteSuffix::Mandatory : Quantity::ByteSuffix::Missing);
+    q.m_magnitude = magnitude;
+    return in;
+}
+
+Quantity (::common::operator+)(Quantity q1, int64_t q2) {
     int64_t v1 = q1.magnitude();
     int64_t v2 = q2;
     int64_t res = v1 + v2;
@@ -173,11 +181,11 @@ Quantity operator+(Quantity q1, int64_t q2) {
     return Quantity(res, q1.is_byte_quantity());
 }
 
-Quantity operator-(Quantity q1, int64_t q2){
+Quantity (::common::operator-)(Quantity q1, int64_t q2){
     return q1 + (-q2);
 }
 
-Quantity operator*(Quantity q1, int64_t q2){
+Quantity (::common::operator*)(Quantity q1, int64_t q2){
     int64_t v1 = q1.magnitude();
     int64_t v2 = q2;
     int64_t res = v1 * v2;
@@ -185,7 +193,7 @@ Quantity operator*(Quantity q1, int64_t q2){
     return Quantity(res, q1.is_byte_quantity());
 }
 
-Quantity operator/(Quantity q1, int64_t q2){
+Quantity (::common::operator/)(Quantity q1, int64_t q2){
     int64_t n = q1.magnitude();
     int64_t d = q2;
     int64_t res = n / d;

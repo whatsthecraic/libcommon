@@ -341,6 +341,7 @@ std::shared_ptr<Database::Execution> Database::ExecutionBuilder::save() {
             }
             sqlcc << ")";
             auto SQL_create_table = sqlcc.str();
+            COUT_DEBUG("SQL DDL: " << SQL_create_table);
             rc = sqlite3_exec(connection, SQL_create_table.c_str(), nullptr, nullptr, &errmsg);
             if(rc != SQLITE_OK || errmsg != nullptr){
                 string error = errmsg; sqlite3_free(errmsg); errmsg = nullptr;
@@ -351,18 +352,23 @@ std::shared_ptr<Database::Execution> Database::ExecutionBuilder::save() {
 
     { // Insert the results
         stringstream sqlcc;
-        sqlcc << "INSERT INTO " << tableName << " ( ";
-        for(size_t i = 0; i < m_fields.size(); i++ ){
-            if(i > 0) sqlcc << ", ";
-            sqlcc << m_fields[i]->key;
+        if(m_fields.size() > 0){
+            sqlcc << "INSERT INTO " << tableName << " ( ";
+            for(size_t i = 0; i < m_fields.size(); i++ ){
+                if(i > 0) sqlcc << ", ";
+                sqlcc << m_fields[i]->key;
+            }
+            sqlcc << " ) VALUES ( ";
+            for(size_t i = 0; i < m_fields.size(); i++){
+                if(i > 0) sqlcc << ", ";
+                sqlcc << "?";
+            }
+            sqlcc << " )";
+        } else { // m_fields.size() == 0
+            sqlcc << "INSERT INTO " << tableName << " DEFAULT VALUES";
         }
-        sqlcc << " ) VALUES ( ";
-        for(size_t i = 0; i < m_fields.size(); i++){
-            if(i > 0) sqlcc << ", ";
-            sqlcc << "?";
-        }
-        sqlcc << ")";
         auto sqlccs = sqlcc.str();
+        COUT_DEBUG("SQL DDL: " << sqlccs);
 
         sqlite3_stmt* stmt (nullptr);
         rc = sqlite3_prepare_v2(connection, sqlccs.c_str(), -1, &stmt, nullptr);

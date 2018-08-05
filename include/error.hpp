@@ -81,7 +81,7 @@ public:
  * @param msg the message stream to concatenate
  */
 #define RAISE_EXCEPTION_CREATE_ARGUMENTS(msg) const char* file = __FILE__; int line = __LINE__; const char* function = __FUNCTION__; \
-        auto& stream = Error::utilitystream; \
+        auto& stream = ::common::Error::utilitystream; \
         stream.str(""); stream.clear(); \
         stream << msg; \
         std::string what = stream.str(); \
