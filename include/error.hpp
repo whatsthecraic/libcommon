@@ -123,6 +123,11 @@ public:
  */
 #define ERROR(message) _RAISE_EXCEPTION(CURRENT_ERROR_TYPE, message)
 
+/**
+ * Convenience macro, runtime assertion
+ */
+#define ASSERT(condition) if(!(condition)){ ERROR("Assertion failed: " << #condition); }
+
 } // namespace common
 
 /**

@@ -7,6 +7,7 @@ add_library(common EXCLUDE_FROM_ALL
     error.cpp
     filesystem.cpp
     math.cpp
+    permutation.cpp
     profiler.cpp
     quantity.cpp
     system_concurrency.cpp
