@@ -1,4 +1,4 @@
 file(GLOB SOURCES *.cpp)
-add_executable(test_driver ${SOURCES})
-target_link_libraries(test_driver libcommon gtest_main)
-add_test(NAME test_driver COMMAND test_driver)
+add_executable(libcommon_tests ${SOURCES})
+target_link_libraries(libcommon_tests libcommon gtest_main)
+add_test(NAME libcommon_tests COMMAND libcommon_tests)

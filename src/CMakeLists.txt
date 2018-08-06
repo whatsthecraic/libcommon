@@ -22,8 +22,8 @@ find_package(PAPI REQUIRED)
 target_include_directories(common PRIVATE ${PAPI_INCLUDE_DIRS})
 target_link_libraries(common PRIVATE ${PAPI_LIBRARIES})
 
-# Support for backtrace
-target_link_libraries(common PRIVATE libsqlite3 libbacktrace pthread)
+# Dependencies
+target_link_libraries(common PRIVATE libsqlite3  libbacktrace pthread dl)
 target_compile_options(common PRIVATE -Wall -Werror)
 
 # Debug flags
