@@ -24,8 +24,9 @@ class Timer {
     clock::time_point m_t0; // start time
     clock::time_point m_t1; // end time
 
-
 public:
+    Timer(){ }
+
     void start(){
         m_t1 = clock::time_point{};
         if(use_barrier) barrier();
@@ -66,9 +67,9 @@ public:
     std::string to_string() const;
 };
 
-} // namespace common
-
 template<bool use_barrier>
 std::ostream& operator<<(std::ostream& out, const common::Timer<use_barrier>& timer);
+
+} // namespace common
 
 #endif //COMMON_TIMER_HPP

@@ -62,13 +62,13 @@ static string to_seconds(D duration){
     uint64_t time_in_seconds = time_in_millisecs / 1000;
 
     stringstream result;
-    if(time_in_seconds >= 10){
-        result << time_in_seconds << " seconds";
-    } else {
+//    if(time_in_seconds >= 10){
+//        result << time_in_seconds << " seconds";
+//    } else {
         char buffer[128];
         snprintf(buffer, 128, "%.3d", (int) (time_in_millisecs % 1000));
         result << time_in_seconds << "." << buffer << " seconds";
-    }
+//    }
 
     return result.str();
 }
@@ -126,10 +126,13 @@ string Timer<with_barrier>::to_string() const{
 }
 
 template<bool use_barrier>
-std::ostream& operator<<(std::ostream& out, const common::Timer<use_barrier>& timer){
+std::ostream& (common::operator<<)(std::ostream& out, const common::Timer<use_barrier>& timer){
     out << timer.to_string();
     return out;
 }
 
+// Template instantiantions
 template class common::Timer<true>;
 template class common::Timer<false>;
+template std::ostream& (common::operator<<)(std::ostream& out, const common::Timer<true>& timer);
+template std::ostream& (common::operator<<)(std::ostream& out, const common::Timer<false>& timer);
