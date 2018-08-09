@@ -40,6 +40,7 @@ struct CachesSnapshot {
     uint64_t m_cache_tlb_misses = 0; // number of misses in the TLB (I think from LLC, assumes page-walk)
 
     void operator+=(CachesSnapshot snapshot);
+    Database::BaseRecord data_record() const;
 };
 
 /**
@@ -87,16 +88,14 @@ public:
     Database::BaseRecord data_record();
 };
 
-} // namespace common
-
-std::ostream& operator<<(std::ostream& out, const common::CachesSnapshot& snapshot);
+std::ostream& operator<<(std::ostream& out, const CachesSnapshot& snapshot);
+CachesSnapshot operator+(const CachesSnapshot& s1, const CachesSnapshot& s2);
 
 /*****************************************************************************
  *                                                                           *
  *   Branch mispredictions                                                   *
  *                                                                           *
  *****************************************************************************/
-namespace common {
 
 /**
  * Data recorded by the BranchMispredictionsProfiler
@@ -108,6 +107,7 @@ struct BranchMispredictionsSnapshot{
     uint64_t m_cache_llc_misses = 0; // number of cache misses in the LLC (=L3 assumed)
 
     void operator+=(BranchMispredictionsSnapshot snapshot);
+    Database::BaseRecord data_record() const;
 };
 
 /**
@@ -149,8 +149,9 @@ public:
     Database::BaseRecord data_record();
 };
 
+std::ostream& operator<<(std::ostream& out, const BranchMispredictionsSnapshot& snapshot);
+
 } // namespace common
 
-std::ostream& operator<<(std::ostream& out, const common::BranchMispredictionsSnapshot& snapshot);
 
 #endif //COMMON_PROFILER_HPP

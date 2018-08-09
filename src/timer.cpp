@@ -131,8 +131,43 @@ std::ostream& (common::operator<<)(std::ostream& out, const common::Timer<use_ba
     return out;
 }
 
+template<bool B1, bool B2>
+Timer<B1> (common::operator+)(Timer<B1> timer1, Timer<B2> timer2){
+    using clock = typename Timer<B1>::clock;
+    typename clock::time_point nullpoint{};
+    Timer<B1> result;
+
+    // stop the timer if they are executing. Note we are passing the timers by value, no changes are forwarded to the original timers
+    if(timer1.m_t0 != nullpoint && timer1.m_t1 == nullpoint){
+        timer1.m_t1 = clock::now();
+    }
+    if(timer2.m_t0 != nullpoint && timer2.m_t1 == nullpoint){
+        timer2.m_t1 = clock::now();
+    }
+
+    // first timer never launched?
+    if(timer1.m_t0 == nullpoint){
+        result.m_t0 = timer2.m_t0;
+        result.m_t1 = timer2.m_t1;
+    } else {
+        // sum the duration from the two timers
+        result = timer1;
+
+        if(timer2.m_t0 != nullpoint){
+            result.m_t0 -= (timer2.m_t1 - timer2.m_t0);
+        }
+    }
+
+    return result;
+};
+
+
 // Template instantiantions
 template class common::Timer<true>;
 template class common::Timer<false>;
-template std::ostream& (common::operator<<)(std::ostream& out, const common::Timer<true>& timer);
-template std::ostream& (common::operator<<)(std::ostream& out, const common::Timer<false>& timer);
+template ostream& (common::operator<<)(ostream& out, const Timer<true>& timer);
+template ostream& (common::operator<<)(ostream& out, const Timer<false>& timer);
+template Timer<true> (common::operator+)(Timer<true> t1, Timer<true> t2);
+template Timer<true> (common::operator+)(Timer<true> t1, Timer<false> t2);
+template Timer<false> (common::operator+)(Timer<false> t1, Timer<true> t2);
+template Timer<false> (common::operator+)(Timer<false> t1, Timer<false> t2);

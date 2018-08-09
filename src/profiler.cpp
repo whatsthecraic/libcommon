@@ -202,12 +202,7 @@ CachesSnapshot CachesProfiler::stop(){
 }
 
 Database::BaseRecord CachesProfiler::data_record(){
-    auto data = snapshot();
-    Database::BaseRecord record;
-    record.add("cache_l1_misses", data.m_cache_l1_misses);
-    record.add("cache_llc_misses", data.m_cache_llc_misses);
-    record.add("cache_tlb_misses", data.m_cache_tlb_misses);
-    return record;
+    return snapshot().data_record();
 }
 
 void CachesSnapshot::operator+=(CachesSnapshot snapshot){
@@ -216,13 +211,28 @@ void CachesSnapshot::operator+=(CachesSnapshot snapshot){
     m_cache_tlb_misses += snapshot.m_cache_tlb_misses;
 }
 
-} // namespace common
+Database::BaseRecord CachesSnapshot::data_record() const {
+    Database::BaseRecord record;
+    record.add("cache_l1_misses", m_cache_l1_misses);
+    record.add("cache_llc_misses", m_cache_llc_misses);
+    record.add("cache_tlb_misses", m_cache_tlb_misses);
+    return record;
+}
 
-std::ostream& operator<<(std::ostream& out, const common::CachesSnapshot& snapshot){
+std::ostream& operator<<(std::ostream& out, const CachesSnapshot& snapshot){
     out << "L1 faults: " << snapshot.m_cache_l1_misses << ", " <<
         "LLC faults: " << snapshot.m_cache_llc_misses << ", " <<
         "TLB faults: " << snapshot.m_cache_tlb_misses;
     return out;
+}
+
+
+CachesSnapshot operator+(const CachesSnapshot& s1, const CachesSnapshot& s2){
+    CachesSnapshot result = s1;
+    result.m_cache_l1_misses += s2.m_cache_l1_misses;
+    result.m_cache_llc_misses += s2.m_cache_llc_misses;
+    result.m_cache_tlb_misses += s2.m_cache_tlb_misses;
+    return result;
 }
 
 /*****************************************************************************
@@ -230,7 +240,6 @@ std::ostream& operator<<(std::ostream& out, const common::CachesSnapshot& snapsh
  *   BranchMispredictionsProfiler                                            *
  *                                                                           *
  *****************************************************************************/
-namespace common {
 
 BranchMispredictionsProfiler::BranchMispredictionsProfiler() {
     add_events("Cannot infer conditional branches", "PAPI_BR_CN");
@@ -266,6 +275,11 @@ BranchMispredictionsSnapshot BranchMispredictionsProfiler::stop() {
     return m_result;
 }
 
+Database::BaseRecord BranchMispredictionsProfiler::data_record(){
+    return snapshot().data_record();
+}
+
+
 void BranchMispredictionsSnapshot::operator+=(BranchMispredictionsSnapshot snapshot) {
     m_conditional_branches += snapshot.m_conditional_branches;
     m_branch_mispredictions += snapshot.m_branch_mispredictions;
@@ -273,23 +287,22 @@ void BranchMispredictionsSnapshot::operator+=(BranchMispredictionsSnapshot snaps
     m_cache_llc_misses += snapshot.m_cache_llc_misses;
 }
 
-Database::BaseRecord BranchMispredictionsProfiler::data_record(){
-    auto data = snapshot();
+Database::BaseRecord BranchMispredictionsSnapshot::data_record() const {
     Database::BaseRecord record;
-    record.add("conditional_branches", data.m_conditional_branches);
-    record.add("branch_mispredictions", data.m_branch_mispredictions);
-    record.add("cache_l1_misses", data.m_cache_l1_misses);
-    record.add("cache_llc_misses", data.m_cache_llc_misses);
+    record.add("conditional_branches", m_conditional_branches);
+    record.add("branch_mispredictions", m_branch_mispredictions);
+    record.add("cache_l1_misses", m_cache_l1_misses);
+    record.add("cache_llc_misses", m_cache_llc_misses);
     return record;
 }
 
-
-} // namespace common
-
-std::ostream& operator<<(std::ostream& out, const common::BranchMispredictionsSnapshot& snapshot){
+std::ostream& operator<<(std::ostream& out, const BranchMispredictionsSnapshot& snapshot){
     out << "Conditional branches: " << snapshot.m_conditional_branches << ", " <<
         "Branch mispredictions: " << snapshot.m_branch_mispredictions << ", " <<
         "L1 cache faults: " << snapshot.m_cache_l1_misses << ", " <<
         "LLC cache faults: " << snapshot.m_cache_llc_misses;
     return out;
 }
+
+} // namespace common
+

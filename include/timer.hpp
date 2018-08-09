@@ -15,8 +15,9 @@
 
 namespace common {
 
-template<bool use_barrier = false>
+template<bool use_barrier = true>
 class Timer {
+    template<bool B1, bool B2> friend Timer<B1> operator+(Timer<B1>, Timer<B2>);
 //    Timer(const Timer&) = delete;
 //    Timer& operator=(const Timer& timer) = delete;
     using clock = std::chrono::steady_clock;
@@ -65,10 +66,14 @@ public:
     uint64_t seconds() const{ return convert<std::chrono::seconds>(); }
 
     std::string to_string() const;
+
 };
 
 template<bool use_barrier>
-std::ostream& operator<<(std::ostream& out, const common::Timer<use_barrier>& timer);
+std::ostream& operator<<(std::ostream& out, const Timer<use_barrier>& timer);
+
+template<bool t1_barrier, bool t2_barrier>
+common::Timer<t1_barrier> operator+(common::Timer<t1_barrier> t1, common::Timer<t2_barrier> t2);
 
 } // namespace common
 
