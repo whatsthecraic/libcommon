@@ -16,7 +16,10 @@ add_library(common EXCLUDE_FROM_ALL
 )
 
 # Headers
-target_link_libraries(common PUBLIC interface)
+get_target_property(path_interface interface INTERFACE_INCLUDE_DIRECTORIES)
+
+target_link_libraries(common PUBLIC interface) # only to add transitivity of the dependency
+target_include_directories(common PRIVATE "${path_interface}/lib/common") # for the internal impl~
 
 # PAPI, for profiling
 find_package(PAPI REQUIRED)
