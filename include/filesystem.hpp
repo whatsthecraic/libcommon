@@ -45,7 +45,7 @@ public:
 std::string absolute_path(const std::string& path);
 
 /**
- * Check whether the given file exist
+ * Check whether the given file exists
  */
 bool exists(const std::string& path);
 bool file_exists(const std::string& path);
@@ -65,6 +65,12 @@ std::string path_executable();
  * Retrieve the absolute path to the directory of the executable
  */
 std::string directory_executable();
+
+/**
+ * Create the given directory. All the parents are also created in the path,
+ * emulating the same functionality of `mkdir -pv'
+ */
+void mkdir(const std::string& path);
 
 } // common::filesystem
 

@@ -32,6 +32,11 @@ private:
     bool m_is_byte_quantity; // append the bytes suffix
 
 public:
+    /**
+     * Empty quantity (zero)
+     */
+    Quantity();
+
     Quantity(uint64_t magnitude, bool byte_suffix = false);
 
     Quantity(const std::string& quantity, bool byte_suffix = false);

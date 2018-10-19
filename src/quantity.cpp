@@ -21,6 +21,8 @@
 using namespace common;
 using namespace std;
 
+Quantity::Quantity() : Quantity(0) {}
+
 Quantity::Quantity(uint64_t magnitude, bool byte_suffix) : m_magnitude(magnitude), m_is_byte_quantity(byte_suffix) { }
 
 Quantity::Quantity(const string& quantity, bool byte_suffix) :

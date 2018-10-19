@@ -16,8 +16,6 @@
 #include <sstream>
 #include <sys/stat.h>
 #include <sys/unistd.h> // chdir, getcwd, getpid
-#include <filesystem.hpp>
-
 
 #include "error.hpp"
 
@@ -144,5 +142,29 @@ TemporaryWorkingDirectory::~TemporaryWorkingDirectory() noexcept(false) {
     }
 }
 
+
+/******************************************************************************
+ *                                                                            *
+ * Make directory (mkdir)                                                     *
+ *                                                                            *
+ *****************************************************************************/
+static void mkdir(const char *); // prototype
+static void mkdir(const char *path){
+    char varpath[PATH_MAX];
+    strncpy(varpath, path, PATH_MAX);
+    char* parent = dirname(varpath);
+    if(!file_exists(string{parent})){
+        mkdir(parent);
+    }
+
+    // syscall
+    int rc = ::mkdir(path, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+    if(rc != 0){ ERROR("Cannot create the directory " << path << ": " << strerror(errno)); }
+}
+
+void mkdir(const std::string& path){
+    if(!file_exists(path))
+        mkdir(path.c_str());
+}
 
 } // namespace common
