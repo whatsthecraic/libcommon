@@ -128,6 +128,13 @@ public:
  */
 #define ASSERT(condition) if(!(condition)){ ERROR("Assertion failed: " << #condition); }
 
+
+/**
+ * Standard exception when an invalid argument has been given to a function, similar to std::invalid_argument
+ */
+DEFINE_EXCEPTION(InvalidArgument);
+#define INVALID_ARGUMENT(message) RAISE_EXCEPTION(::common::InvalidArgument, message)
+
 } // namespace common
 
 /**

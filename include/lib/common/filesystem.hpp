@@ -51,6 +51,16 @@ bool exists(const std::string& path);
 bool file_exists(const std::string& path);
 
 /**
+ * Check whether the given path exists and it is a directory
+ */
+bool is_directory(const std::string& path);
+
+/**
+ * Retrieve the size, in bytes, of the file in the given path
+ */
+uint64_t file_size(const std::string& path);
+
+/**
  * Get the path to the current working directory
  */
 std::string wd();

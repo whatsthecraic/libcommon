@@ -110,6 +110,25 @@ bool file_exists(const std::string& path){
     }
 }
 
+bool is_directory(const std::string& path){
+    struct stat result;
+    int rc = stat(path.c_str(), &result);
+    return rc == 0 && S_ISDIR(result.st_mode);
+}
+
+
+/******************************************************************************
+ *                                                                            *
+ * File size                                                                  *
+ *                                                                            *
+ *****************************************************************************/
+uint64_t file_size(const std::string& path){
+    struct stat result;
+    int rc = stat(path.c_str(), &result);
+    if(rc == ENOENT) ERROR("The file `" << path << "' does not exist");
+    if(rc != 0) ERROR("Error while accessing the file: " << path << ": " << strerror(errno) << " [errno=" << errno << "]");
+    return result.st_size;
+}
 
 /******************************************************************************
  *                                                                            *

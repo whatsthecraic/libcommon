@@ -2,7 +2,7 @@
 
 #include <cinttypes>
 #include <random>
-#include "profiler.hpp"
+#include "lib/common/profiler.hpp"
 
 using namespace std;
 using namespace common;

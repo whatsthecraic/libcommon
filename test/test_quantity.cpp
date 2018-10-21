@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
 
-#include "quantity.hpp"
+#include "lib/common/quantity.hpp"
 
 using namespace std;
 using namespace common;
