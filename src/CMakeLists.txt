@@ -3,6 +3,7 @@ include(CheckCXXCompilerFlag)
 # Create a new library
 add_library(common EXCLUDE_FROM_ALL
     backtrace.cpp
+    cpu_topology.cpp
     database.cpp
     error.cpp
     filesystem.cpp
