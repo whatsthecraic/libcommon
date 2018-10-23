@@ -1,12 +1,13 @@
 #include "gtest/gtest.h"
 
 #include <cinttypes>
+#include <climits>
+#include <cstdio>
 #include <random>
 #include "lib/common/profiler.hpp"
 
 using namespace std;
 using namespace common;
-
 
 volatile uint64_t cache_faults_count = 0;
 
@@ -39,4 +40,42 @@ TEST(Profiler, cache_faults){
     cout << "Run, random accesses, faults: " << c.snapshot() << endl;
 
     delete[] A; A = nullptr;
+}
+
+TEST(Profiler, software_events){
+    cout << "\n";
+
+    // Create a temporary file
+    char path[PATH_MAX];
+    strcpy(path, "/tmp/test_profiler_XXXXXX");
+    int fd = mkstemp(path);
+    ASSERT_NE(fd, -1); // cannot create a temporary file
+    cout << "Temporary file: " << path << endl;
+    FILE* file = fdopen(fd, "w");
+    uint64_t cardinality = 1024 * 1024; // 8 MB
+    for(uint64_t i = 0; i < cardinality; i++){
+        size_t rc = fwrite(&i, sizeof(i), 1, file);
+        ASSERT_EQ(rc, 1); // it should have written exactly one element
+    }
+    int rc = fclose(file); // it also closes the underlying file descriptor
+    ASSERT_EQ(rc, 0);
+
+    SoftwareEventsProfiler profiler;
+    profiler.start();
+
+    // Read the content of the temporary file just created
+    file = fopen(path, "r");
+    ASSERT_NE(file, nullptr);
+    for(uint64_t i = 0; i < cardinality; i++){
+        uint64_t value = 0;
+        size_t count = fread(&value, sizeof(value), 1, file);
+        ASSERT_EQ(count, 1);
+        ASSERT_EQ(value, i);
+    }
+
+    rc = fclose(file);
+    ASSERT_EQ(rc, 0);
+
+    profiler.stop();
+    cout << "Software events: " << profiler.snapshot() << endl;
 }

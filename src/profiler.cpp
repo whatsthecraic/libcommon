@@ -314,5 +314,73 @@ std::ostream& operator<<(std::ostream& out, const BranchMispredictionsSnapshot& 
     return out;
 }
 
+/*****************************************************************************
+ *                                                                           *
+ *   SoftwareEventsProfiler                                                  *
+ *                                                                           *
+ *****************************************************************************/
+SoftwareEventsProfiler::SoftwareEventsProfiler() {
+    add_events("Cannot install PERF_COUNT_SW_PAGE_FAULTS", "perf::PERF_COUNT_SW_PAGE_FAULTS");
+    add_events("Cannot install PERF_COUNT_SW_PAGE_FAULTS_MIN", "perf::PERF_COUNT_SW_PAGE_FAULTS_MIN");
+    add_events("Cannot install PERF_COUNT_SW_PAGE_FAULTS_MAJ", "perf::PERF_COUNT_SW_PAGE_FAULTS_MAJ");
+    add_events("Cannot install PERF_COUNT_SW_CONTEXT_SWITCHES", "perf::PERF_COUNT_SW_CONTEXT_SWITCHES");
+    add_events("Cannot install PERF_COUNT_SW_CPU_MIGRATIONS", "perf::PERF_COUNT_SW_CPU_MIGRATIONS");
+    register_events();
+}
+
+SoftwareEventsProfiler::~SoftwareEventsProfiler() { }
+
+void SoftwareEventsProfiler::start() {
+    GenericProfiler::start();
+}
+
+SoftwareEventsSnapshot SoftwareEventsProfiler::snapshot() {
+    static_assert((sizeof(long long) * 5) == sizeof(m_current_snapshot), "Size mismatch, need to pass an array of types `long long'");
+    GenericProfiler::snapshot((long long*) &m_current_snapshot);
+    return m_current_snapshot;
+}
+
+SoftwareEventsSnapshot SoftwareEventsProfiler::stop() {
+    SoftwareEventsSnapshot m_result;
+
+    static_assert(sizeof(long long) *5 == sizeof(m_result), "Size mismatch, need to pass an array of types `long long'");
+    GenericProfiler::stop((long long*) &m_result);
+    m_result += m_current_snapshot;
+
+    m_current_snapshot = {0,0,0,0,0};
+
+    return m_result;
+}
+
+Database::BaseRecord SoftwareEventsProfiler::data_record(){
+    return snapshot().data_record();
+}
+
+void SoftwareEventsSnapshot::operator+=(SoftwareEventsSnapshot snapshot) {
+    m_page_faults += snapshot.m_page_faults;
+    m_page_faults_min += snapshot.m_page_faults_min;
+    m_page_faults_maj += snapshot.m_page_faults_maj;
+    m_context_switches += snapshot.m_context_switches;
+    m_cpu_migrations += snapshot.m_cpu_migrations;
+}
+
+Database::BaseRecord SoftwareEventsSnapshot::data_record() const {
+    Database::BaseRecord record;
+    record.add("page_faults", m_page_faults);
+    record.add("page_faults_minor", m_page_faults_min);
+    record.add("page_faults_major", m_page_faults_maj);
+    record.add("context_switches", m_context_switches);
+    record.add("cpu_migrations", m_cpu_migrations);
+    return record;
+}
+
+std::ostream& operator<<(std::ostream& out, const SoftwareEventsSnapshot& snapshot){
+    out << "Page faults: " << snapshot.m_page_faults << " "
+           "(minor: " << snapshot.m_page_faults_min << ", major: " << snapshot.m_page_faults_maj << "), " <<
+           "Context switches: " << snapshot.m_context_switches << ", "
+           "CPU migrations: " << snapshot.m_cpu_migrations;
+    return out;
+}
+
 } // namespace common
 

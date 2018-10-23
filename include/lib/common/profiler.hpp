@@ -121,7 +121,7 @@ struct BranchMispredictionsSnapshot{
 };
 
 /**
- * Record the amount of branch misprediction AND L1 and LLC faults during the executions
+ * Record the amount of branch mispredictions AND L1 and LLC faults during the executions
  */
 struct BranchMispredictionsProfiler : public details::GenericProfiler {
     BranchMispredictionsSnapshot m_current_snapshot;
@@ -160,6 +160,65 @@ public:
 };
 
 std::ostream& operator<<(std::ostream& out, const BranchMispredictionsSnapshot& snapshot);
+
+
+/*****************************************************************************
+ *                                                                           *
+ *   SoftwareEventsProfiler                                                  *
+ *                                                                           *
+ *****************************************************************************/
+
+/**
+ * Data recorded by the SoftwareEventsProfiler
+ */
+struct SoftwareEventsSnapshot{
+    uint64_t m_page_faults = 0; // is this perf::PERF_COUNT_SW_PAGE_FAULTS_MIN + perf::PERF_COUNT_SW_PAGE_FAULTS_MAJ ?
+    uint64_t m_page_faults_min = 0; // requests handled by the O.S. page cache
+    uint64_t m_page_faults_maj = 0; // Disk I/Os, the page is not in the O.S. cache
+    uint64_t m_context_switches = 0; // because... why not?
+    uint64_t m_cpu_migrations = 0; // not sure whether this is per thread or per process
+
+    void operator+=(SoftwareEventsSnapshot snapshot);
+    Database::BaseRecord data_record() const;
+};
+
+struct SoftwareEventsProfiler : public details::GenericProfiler {
+    SoftwareEventsSnapshot m_current_snapshot;
+
+public:
+    /**
+     * Initialise the profiler
+     */
+    SoftwareEventsProfiler();
+
+    /**
+     * Destructor
+     */
+    ~SoftwareEventsProfiler();
+
+
+    /**
+     * Start recording
+     */
+    void start();
+
+    /**
+     * Retrieve the data associated to this profiler
+     */
+    SoftwareEventsSnapshot snapshot();
+
+    /**
+     * Stop the recording
+     */
+    SoftwareEventsSnapshot stop();
+
+    /**
+     * Retrieve a data record ready to be stored in the database
+     */
+    Database::BaseRecord data_record();
+};
+
+std::ostream& operator<<(std::ostream& out, const SoftwareEventsSnapshot& snapshot);
 
 } // namespace common
 
