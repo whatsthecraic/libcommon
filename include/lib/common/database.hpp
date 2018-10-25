@@ -156,6 +156,8 @@ public: // Results
 
     class OutcomeBuilder : public Record<OutcomeBuilder> {
         friend class Execution;
+        OutcomeBuilder(OutcomeBuilder& object) = delete;
+        OutcomeBuilder& operator=(OutcomeBuilder& object) = delete;
 
         std::shared_ptr<Execution> m_instance;
         const std::string m_table_name;
@@ -167,6 +169,8 @@ public: // Results
         void save();
     public:
         OutcomeBuilder(std::shared_ptr<Execution> instance, const std::string& tableName);
+
+        OutcomeBuilder(OutcomeBuilder&& object);
 
         ~OutcomeBuilder() noexcept(false);
 

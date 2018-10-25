@@ -546,8 +546,12 @@ Database::OutcomeBuilder::OutcomeBuilder(std::shared_ptr<Execution> instance, co
     if(instance.get() == nullptr || !instance->valid()){ ERROR("This execution has already been sealed"); }
 }
 
+Database::OutcomeBuilder::OutcomeBuilder(OutcomeBuilder&& object) : m_instance(object.m_instance), m_table_name(object.m_table_name){
+    object.m_instance.reset();
+}
+
 Database::OutcomeBuilder::~OutcomeBuilder() noexcept(false) {
-    save();
+    if(m_instance) save();
 }
 
 shared_ptr<Database::Execution> Database::OutcomeBuilder::execution() const {
