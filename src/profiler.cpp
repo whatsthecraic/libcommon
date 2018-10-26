@@ -20,6 +20,7 @@
 #include <cassert>
 #include <cstring>
 #include <iostream>
+#include <mutex>
 #include <papi.h>
 
 #undef CURRENT_ERROR_TYPE
@@ -33,10 +34,12 @@ using namespace std;
  *                                                                           *
  *****************************************************************************/
 namespace common { namespace details {
-// thread unsafe
+
+static std::mutex g_mutex;
 bool BaseProfiler::library_initialised = false;
 
 void BaseProfiler::initialise_library(){
+    scoped_lock<mutex> lock(g_mutex);
     if(library_initialised) return; // already initialised
     int rc = PAPI_library_init(PAPI_VER_CURRENT);
     if (rc != PAPI_VER_CURRENT){ ERROR("Library PAPI version mismatch"); }
@@ -46,6 +49,7 @@ void BaseProfiler::initialise_library(){
 BaseProfiler::BaseProfiler() { initialise_library(); }
 
 int BaseProfiler::get_event_code(const char* event_name){
+    scoped_lock<mutex> lock(g_mutex);
     if(!library_initialised) ERROR("Library PAPI not initialised");
 
     // PAPI_event_name_to_code doesn't accept a const char* argument
@@ -115,6 +119,7 @@ void GenericProfiler::add_events(const char* errorstring, const char* alternativ
 }
 
 void GenericProfiler::register_events(){
+    scoped_lock<mutex> lock(g_mutex); // global access to PAPI
     int rc {0};
 
     m_event_set = PAPI_NULL;
@@ -132,6 +137,7 @@ void GenericProfiler::register_events(){
 }
 
 void GenericProfiler::unregister_events(){
+    scoped_lock<mutex> lock(g_mutex);  // global access to PAPI
     int event_state = 0;
     int rc = PAPI_state(m_event_set, &event_state);
     if(rc == PAPI_OK && !(event_state & PAPI_STOPPED)){
