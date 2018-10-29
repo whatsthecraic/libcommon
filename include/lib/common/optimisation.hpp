@@ -23,9 +23,10 @@
 namespace common {
 
 /**
- * Compiler barrier
+ * Compiler barrier: at compiler level, avoid reordering instructions before and
+ * after the barrier
  */
-inline void barrier(){
+inline void compiler_barrier(){
     __asm__ __volatile__("": : :"memory");
 };
 

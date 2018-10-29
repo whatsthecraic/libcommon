@@ -40,9 +40,9 @@ public:
 
     void start(){
         m_t1 = clock::time_point{};
-        if(use_barrier) barrier();
+        if(use_barrier) compiler_barrier();
         m_t0 = clock::now();
-        if(use_barrier) barrier();
+        if(use_barrier) compiler_barrier();
     }
 
     void resume(){
@@ -50,16 +50,16 @@ public:
         if(m_t1 == clock::time_point{}){ // this timer has never been executed
             start();
         } else {
-            if(use_barrier) barrier();
+            if(use_barrier) compiler_barrier();
             m_t0 = clock::now() - (m_t1 - m_t0);
-            if(use_barrier) barrier();
+            if(use_barrier) compiler_barrier();
         }
     }
 
     void stop() {
-        if(use_barrier) barrier();
+        if(use_barrier) compiler_barrier();
         m_t1 = clock::now();
-        if(use_barrier) barrier();
+        if(use_barrier) compiler_barrier();
     }
 
     template<typename D>
