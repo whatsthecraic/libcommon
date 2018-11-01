@@ -143,12 +143,11 @@ public:
 
 };
 
-} // namespace common
-
 /**
  * Output
  */
 std::ostream& operator<<(std::ostream& out, const common::Backtrace::Frame& entry);
 std::ostream& operator<<(std::ostream& out, const common::Backtrace& backtrace);
 
+} // namespace common
 #endif // COMMON_BACKTRACE_HPP

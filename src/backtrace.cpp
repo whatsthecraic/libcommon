@@ -192,11 +192,6 @@ const string& Backtrace::Frame::get_function_name_demangled() const noexcept {
     return m_function_name_demangled;
 }
 
-} // namespace common
-
-/**
- * Output
- */
 std::ostream& operator<<(std::ostream& out, const ::common::Backtrace& backtrace) {
     if (backtrace.has_error()) {
         out << backtrace.get_error() << '\n';
@@ -215,3 +210,5 @@ std::ostream& operator<<(std::ostream& out, const ::common::Backtrace::Frame& en
         entry.get_function_name();
     return out;
 }
+
+} // namespace common

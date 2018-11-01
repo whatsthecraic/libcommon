@@ -145,11 +145,12 @@ public:
 DEFINE_EXCEPTION(InvalidArgument);
 #define INVALID_ARGUMENT(message) RAISE_EXCEPTION(::common::InvalidArgument, message)
 
-} // namespace common
-
 /**
  * Overload the operator to print the descriptive content of an ELF Exception
  */
-std::ostream& operator<<(std::ostream& out, const common::Error& e);
+std::ostream& operator<<(std::ostream& out, const ::common::Error& e);
+
+} // namespace common
+
 
 #endif /* _ERROR_HPP_ */
