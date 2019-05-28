@@ -15,8 +15,8 @@
  * along with libcommon.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef _ERROR_HPP_
-#define _ERROR_HPP_
+#ifndef COMMON_ERROR_HPP
+#define COMMON_ERROR_HPP
 
 #include <ostream>
 #include <sstream>
@@ -153,4 +153,4 @@ std::ostream& operator<<(std::ostream& out, const ::common::Error& e);
 } // namespace common
 
 
-#endif /* _ERROR_HPP_ */
+#endif /* COMMON_ERROR_HPP */

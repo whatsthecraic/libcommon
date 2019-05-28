@@ -15,8 +15,8 @@
  * along with libcommon.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef PERM_VS_SORT_MATH_HPP
-#define PERM_VS_SORT_MATH_HPP
+#ifndef COMMON_MATH_HPP
+#define COMMON_MATH_HPP
 
 #include <cinttypes>
 
@@ -31,4 +31,4 @@ uint64_t hyperceil(uint64_t x);
 
 } // common
 
-#endif //PERM_VS_SORT_MATH_HPP
+#endif //COMMON_MATH_HPP

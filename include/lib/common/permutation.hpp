@@ -15,8 +15,8 @@
  * along with libcommon.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef PERM_VS_SORT_PERMUTATION_HPP
-#define PERM_VS_SORT_PERMUTATION_HPP
+#ifndef COMMON_PERMUTATION_HPP
+#define COMMON_PERMUTATION_HPP
 
 #include <cinttypes>
 
@@ -31,4 +31,4 @@ void permute(T* array, uint64_t array_sz, uint64_t seed);
 
 }
 
-#endif //PERM_VS_SORT_PERMUTATION_HPP
+#endif //COMMON_PERMUTATION_HPP

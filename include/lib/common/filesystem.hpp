@@ -16,8 +16,8 @@
  */
 
 
-#ifndef PERM_VS_SORT_FILESYSTEM_HPP
-#define PERM_VS_SORT_FILESYSTEM_HPP
+#ifndef COMMON_FILESYSTEM_HPP
+#define COMMON_FILESYSTEM_HPP
 
 #include <string>
 
@@ -95,4 +95,4 @@ void mkdir(const std::string& path);
 
 } // common::filesystem
 
-#endif //PERM_VS_SORT_FILESYSTEM_HPP
+#endif //COMMON_FILESYSTEM_HPP
