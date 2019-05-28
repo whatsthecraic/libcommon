@@ -10,11 +10,16 @@ set(CMAKE_CXX_COMPILER_NAMES clang++ g++ icpc c++ cxx)
 project(common)
 set(CMAKE_CXX_STANDARD 17)
 
+# Build tests?
+option(BUILD_TEST "Build the unit tests" ON)
+
 # Search for project modules in /build-aux/
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/build-aux/")
 
 # Helpers
-include(GoogleTest)
+if(BUILD_TEST)
+    include(GoogleTest)
+endif()
 include(LibBacktrace)
 include(SQLite3)
 
@@ -25,9 +30,10 @@ target_include_directories(interface INTERFACE include)
 # Sources, it defines the library common
 add_subdirectory(src obj)
 
-
 add_library(libcommon INTERFACE)
 target_link_libraries(libcommon INTERFACE common)
 
 # Tests
-add_subdirectory(test)
+if(BUILD_TEST)
+    add_subdirectory(test)
+endif()
