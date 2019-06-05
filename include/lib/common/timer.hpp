@@ -63,8 +63,13 @@ public:
     }
 
     template<typename D>
+    D duration() const {
+        return std::chrono::duration_cast<D>(m_t1 - m_t0);
+    }
+
+    template<typename D>
     uint64_t convert() const {
-        return (uint64_t) std::chrono::duration_cast<D>(m_t1 - m_t0).count();
+        return static_cast<uint64_t>( duration<D>().count() );
     }
 
     uint64_t nanoseconds() const{ return convert<std::chrono::nanoseconds>(); }
