@@ -54,6 +54,11 @@ std::string directory_executable(); // impl in filesystem.cpp
 namespace concurrency {
 
 /**
+ * Get the Linux thread id, the value shown in the debugger
+ */
+int64_t get_thread_id();
+
+/**
  * Whether NUMA settings are available
  */
 bool has_numa();

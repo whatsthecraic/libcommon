@@ -17,12 +17,16 @@
 
 #include "system.hpp"
 
+#include <cassert>
 #include <cerrno>
 #include <cstring> // strerror
 #include <memory>
 #include <pthread.h>
 #include <sched.h> // sched_getcpu()
+#include <sys/syscall.h> // SYS_gettid
 #include <sys/sysinfo.h> // get_nprocs(): return the number of available processors
+#include <unistd.h> // syscall
+
 #include "error.hpp"
 
 // Support for libnuma
@@ -36,6 +40,12 @@
 using namespace std;
 
 namespace common::concurrency {
+
+int64_t get_thread_id(){
+    auto tid = (int64_t) syscall(SYS_gettid);
+    assert(tid > 0);
+    return tid;
+}
 
 bool has_numa(){
 #if defined(HAVE_LIBNUMA)
