@@ -55,6 +55,12 @@ public:
  */
 std::string absolute_path(const std::string& path);
 
+
+/**
+ * Get the directory path for the given path
+ */
+std::string directory(const std::string& path);
+
 /**
  * Check whether the given file exists
  */

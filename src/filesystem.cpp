@@ -96,6 +96,13 @@ string absolute_path(const string& path){
     return string(result);
 }
 
+string directory(const std::string& path){
+    char* dup = strdup(path.c_str());
+    string result = dirname(dup);
+    free(dup);
+    return result;
+}
+
 
 /******************************************************************************
  *                                                                            *
