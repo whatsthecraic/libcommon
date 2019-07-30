@@ -110,12 +110,12 @@ public:
 /**
  * These exception classes are so similar, so define a general macro to create the exception
  */
-#define DEFINE_EXCEPTION(exceptionName) class exceptionName: public ::common::Error { \
-        public: exceptionName(const std::string& exceptionClass, const std::string& message, const std::string& file, \
+#define DEFINE_EXCEPTION_SUBCLASS(subClass, superClass) class subClass: public superClass { \
+        public: subClass(const std::string& exceptionClass, const std::string& message, const std::string& file, \
             int line, const std::string& function) : \
-                Error(exceptionClass, message, file, line, function) { } \
-} /* End of DEFINE_EXCEPTION */
-
+                superClass(exceptionClass, message, file, line, function) { } \
+} /* End of DEFINE_EXCEPTION_SUBCLASS */
+#define DEFINE_EXCEPTION(exceptionName) DEFINE_EXCEPTION_SUBCLASS(exceptionName, ::common::Error)
 
 /**
  * The exception type to throw when using the macro `ERROR'
