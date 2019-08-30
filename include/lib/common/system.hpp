@@ -119,7 +119,7 @@ void set_thread_name(const std::string& name);
  * @param thread_id the id the for the thread (pthread_t) which we want to set the name
  * @param name the new name to give to the given thread
  */
-void set_thread_name(int thread_id, const std::string& name);
+void set_thread_name(uint64_t thread_id, const std::string& name);
 
 } // concurrency
 

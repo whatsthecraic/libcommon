@@ -145,7 +145,7 @@ void set_thread_name(const std::string& name){
     set_thread_name(pthread_self(), name);
 }
 
-void set_thread_name(int thread_id, const std::string& name) {
+void set_thread_name(uint64_t thread_id, const std::string& name) {
     std::string truncated_name = name.substr(0, 15);
     int rc = pthread_setname_np(thread_id, truncated_name.c_str());
     if (rc != 0) {ERROR("[set_thread_name] error: " << strerror(errno) << " (" << errno << ")"); }

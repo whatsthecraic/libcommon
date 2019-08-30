@@ -429,7 +429,7 @@ ostream& (::common::operator<<)(ostream& out, const DurationQuantity* q){
 
 std::istream& (::common::operator>>)(std::istream& in, common::DurationQuantity& q){
     string value;
-    in >> value;
+    getline(in, value);
     auto duration_parsed = DurationQuantity::parse(value);
     q.m_duration = duration_parsed.m_duration;
     return in;
