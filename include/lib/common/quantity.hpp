@@ -19,6 +19,7 @@
 #define COMMON_QUANTITY_HPP
 
 #include <cinttypes>
+#include <chrono>
 #include <cstddef>
 #include <iostream>
 #include <string>
@@ -35,8 +36,8 @@ DEFINE_EXCEPTION(QuantityError);
 /**
  * It represents a computer quantity, e.g. 4 K or 8 GB, where 1k = 1024
  */
-class Quantity {
-    friend ::std::istream& operator>>(::std::istream& in, ::common::Quantity& q);
+class ComputerQuantity {
+    friend ::std::istream& operator>>(::std::istream& in, ::common::ComputerQuantity& q);
 private:
     uint64_t m_magnitude; // the actual magnitude, either in bytes or as absolute number
     bool m_is_byte_quantity; // append the bytes suffix
@@ -45,11 +46,11 @@ public:
     /**
      * Empty quantity (zero)
      */
-    Quantity();
+    ComputerQuantity();
 
-    Quantity(uint64_t magnitude, bool byte_suffix = false);
+    ComputerQuantity(uint64_t magnitude, bool byte_suffix = false);
 
-    Quantity(const std::string& quantity, bool byte_suffix = false);
+    ComputerQuantity(const std::string& quantity, bool byte_suffix = false);
 
     /**
      * The actual magnitude of this quantity, in its most basic unit (e.g. bytes/absolute number).
@@ -99,20 +100,87 @@ public:
     /**
      * Mathematical operations
      */
-    Quantity& operator+=(int64_t value);
-    Quantity& operator-=(int64_t value);
-    Quantity& operator*=(int64_t value);
-    Quantity& operator/=(int64_t value);
+    ComputerQuantity& operator+=(int64_t value);
+    ComputerQuantity& operator-=(int64_t value);
+    ComputerQuantity& operator*=(int64_t value);
+    ComputerQuantity& operator/=(int64_t value);
 };
 
-    Quantity operator+(Quantity q1, int64_t q2);
-    Quantity operator-(Quantity q1, int64_t q2);
-    Quantity operator*(Quantity q1, int64_t q2);
-    Quantity operator/(Quantity q1, int64_t q2);
+ComputerQuantity operator+(ComputerQuantity q1, int64_t q2);
+ComputerQuantity operator-(ComputerQuantity q1, int64_t q2);
+ComputerQuantity operator*(ComputerQuantity q1, int64_t q2);
+ComputerQuantity operator/(ComputerQuantity q1, int64_t q2);
 
-    ::std::ostream& operator<<(::std::ostream& out, const Quantity& q);
-    ::std::ostream& operator<<(::std::ostream& out, const Quantity* q);
-    ::std::istream& operator>>(::std::istream& in, Quantity& q);
+::std::ostream& operator<<(::std::ostream& out, const ComputerQuantity& q);
+::std::ostream& operator<<(::std::ostream& out, const ComputerQuantity* q);
+::std::istream& operator>>(::std::istream& in, ComputerQuantity& q);
+
+/**
+* It represents a time quantity, e.g. 4h, 8 secs or 30 microsecs
+*/
+class DurationQuantity {
+    friend ::std::istream& operator>>(::std::istream& in, ::common::DurationQuantity& q);
+    std::chrono::nanoseconds m_duration; // internal representation
+
+public:
+    /**
+     * Empty quantity (zero)
+     */
+    DurationQuantity();
+
+    /**
+     * Init the quantity in terms of seconds
+     */
+     DurationQuantity(uint64_t seconds);
+
+    /**
+     * Init the quantity with the given duration
+     */
+     template<typename D>
+     DurationQuantity(D duration);
+
+    /**
+     * Return the duration in seconds
+     */
+    operator uint64_t() const noexcept;
+
+    /**
+     * Return the duration in seconds
+     */
+    uint64_t seconds() const noexcept;
+
+    /**
+     * Parse the given string and return the absolute magnitude in its basic unit
+     */
+    static DurationQuantity parse(const std::string& str_duration);
+
+    /**
+     * Return a string representation of the duration
+     */
+    std::string to_string() const;
+
+    /**
+     * Return the time with the given representation D
+     */
+     template<typename D>
+     D as() const;
+};
+
+::std::ostream& operator<<(::std::ostream& out, const DurationQuantity& q);
+::std::ostream& operator<<(::std::ostream& out, const DurationQuantity* q);
+::std::istream& operator>>(::std::istream& in, DurationQuantity& q);
+
+// implementation details
+template<typename D>
+DurationQuantity::DurationQuantity(D duration) : m_duration(std::chrono::duration_cast<std::chrono::nanoseconds>(duration)) {
+    /* nop */
+}
+
+template<typename D>
+D DurationQuantity::as() const {
+    return std::chrono::duration_cast<D>(m_duration);
+}
+
 } // namespace common
 
 #endif //COMMON_QUANTITY_HPP

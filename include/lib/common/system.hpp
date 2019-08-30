@@ -106,6 +106,20 @@ void pin_thread_to_numa_node(int numa_node);
  */
 void unpin_thread(bool numa = true);
 
+/**
+ * Set the name of the current thread, it must a string up to 16 chars. The name is useful for debugging as
+ * it is shown in the debugger's thread list.
+ * @param name the new name to give to the current thread
+ */
+void set_thread_name(const std::string& name);
+
+/**
+ * Set the name of the given thread. The name must a string up to 16 chars. This is useful for debugging as
+ * the thread's name is shown in the debugger's thread list.
+ * @param thread_id the id the for the thread (pthread_t) which we want to set the name
+ * @param name the new name to give to the given thread
+ */
+void set_thread_name(int thread_id, const std::string& name);
 
 } // concurrency
 

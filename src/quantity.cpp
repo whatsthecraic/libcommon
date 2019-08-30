@@ -31,35 +31,36 @@
 using namespace common;
 using namespace std;
 
-Quantity::Quantity() : Quantity(0) {}
+/**********************************************************************************************************************
+ *                                                                                                                    *
+ *  ComputerQuantity                                                                                                  *
+ *                                                                                                                    *
+ **********************************************************************************************************************/
 
-Quantity::Quantity(uint64_t magnitude, bool byte_suffix) : m_magnitude(magnitude), m_is_byte_quantity(byte_suffix) { }
+ComputerQuantity::ComputerQuantity() : ComputerQuantity(0) {}
 
-Quantity::Quantity(const string& quantity, bool byte_suffix) :
+ComputerQuantity::ComputerQuantity(uint64_t magnitude, bool byte_suffix) : m_magnitude(magnitude), m_is_byte_quantity(byte_suffix) { }
+
+ComputerQuantity::ComputerQuantity(const string& quantity, bool byte_suffix) :
         m_magnitude(parse(quantity, byte_suffix ? ByteSuffix::Optional : ByteSuffix::Missing)),
         m_is_byte_quantity(byte_suffix){ }
 
-uint64_t Quantity::magnitude() const noexcept {
+uint64_t ComputerQuantity::magnitude() const noexcept {
     return m_magnitude;
 }
 
-Quantity::operator int64_t() const noexcept {
+ComputerQuantity::operator int64_t() const noexcept {
     return static_cast<int64_t>(m_magnitude);
 }
 
-uint64_t Quantity::parse(const string& quantity, ByteSuffix byte_suffix) {
+uint64_t ComputerQuantity::parse(const string& quantity, ByteSuffix byte_suffix) {
     string pattern {"^\\s*(\\d+)?(\\.\\d+)?\\s*([KMGT]?)("}; // kilo, mega, giga tera
     if(byte_suffix == ByteSuffix::Optional || byte_suffix == ByteSuffix::Mandatory) pattern += "B"; // bytes
     if(byte_suffix == ByteSuffix::Optional) pattern += "?";
     pattern += ")\\s*$";
-//    cout << "pattern: " << pattern << endl;
     regex regex{pattern, regex::icase};
     smatch match;
     if (!regex_match(begin(quantity), end(quantity), match, regex)){ ERROR("Invalid quantity: " << quantity); }
-//    cout << "Number of matches: " << match.size() << endl;
-//    for(size_t i = 0; i < match.size(); i++){
-//        cout << "[" << i << "] " << match[i] << ", length: " << match[i].length() << endl;
-//    }
 
     // check the `byte' suffix is present
     if(byte_suffix == ByteSuffix::Mandatory && match[4].length() == 0){
@@ -105,8 +106,8 @@ uint64_t Quantity::parse(const string& quantity, ByteSuffix byte_suffix) {
     return result;
 }
 
-static string convert_to_string(uint64_t magnitude, Quantity::Unit unit, bool byte_suffix){
-    using Unit = Quantity::Unit;
+static string convert_to_string(uint64_t magnitude, ComputerQuantity::Unit unit, bool byte_suffix){
+    using Unit = ComputerQuantity::Unit;
 
     // unit
     uint64_t mult = 1;
@@ -144,7 +145,7 @@ static string convert_to_string(uint64_t magnitude, Quantity::Unit unit, bool by
     return ss.str();
 }
 
-string Quantity::to_string(Quantity::Unit unit) const {
+string ComputerQuantity::to_string(ComputerQuantity::Unit unit) const {
     switch(unit){
     case Unit::AUTO:
         if(m_magnitude >= (1ull << 40)){
@@ -163,12 +164,12 @@ string Quantity::to_string(Quantity::Unit unit) const {
     }
 }
 
-ostream& (::common::operator<<)(ostream& out, const Quantity& q) {
+ostream& (::common::operator<<)(ostream& out, const ComputerQuantity& q) {
     out << q.to_string();
     return out;
 }
 
-ostream& (::common::operator<<)(ostream& out, const Quantity* q){
+ostream& (::common::operator<<)(ostream& out, const ComputerQuantity* q){
     out << "ptr: 0x" << std::hex << (void*) q << std::dec;
     if(q != nullptr){
         out << " (" << q->to_string() << ")";
@@ -176,44 +177,43 @@ ostream& (::common::operator<<)(ostream& out, const Quantity* q){
     return out;
 }
 
-
-std::istream& (::common::operator>>)(std::istream& in, common::Quantity& q){
+std::istream& (::common::operator>>)(std::istream& in, common::ComputerQuantity& q){
     string value;
     in >> value;
-    auto magnitude = Quantity::parse(value, q.is_byte_quantity() ? Quantity::ByteSuffix::Mandatory : Quantity::ByteSuffix::Missing);
+    auto magnitude = ComputerQuantity::parse(value, q.is_byte_quantity() ? ComputerQuantity::ByteSuffix::Mandatory : ComputerQuantity::ByteSuffix::Missing);
     q.m_magnitude = magnitude;
     return in;
 }
 
-Quantity (::common::operator+)(Quantity q1, int64_t q2) {
+ComputerQuantity (::common::operator+)(ComputerQuantity q1, int64_t q2) {
     int64_t v1 = q1.magnitude();
     int64_t v2 = q2;
     int64_t res = v1 + v2;
     if(res < 0) ERROR("Negative quantity: " << v1 << " + " << v2);
-    return Quantity(res, q1.is_byte_quantity());
+    return ComputerQuantity(res, q1.is_byte_quantity());
 }
 
-Quantity (::common::operator-)(Quantity q1, int64_t q2){
+ComputerQuantity (::common::operator-)(ComputerQuantity q1, int64_t q2){
     return q1 + (-q2);
 }
 
-Quantity (::common::operator*)(Quantity q1, int64_t q2){
+ComputerQuantity (::common::operator*)(ComputerQuantity q1, int64_t q2){
     int64_t v1 = q1.magnitude();
     int64_t v2 = q2;
     int64_t res = v1 * v2;
     if(res < 0) ERROR("Negative quantity: " << q1 << " * " << q2);
-    return Quantity(res, q1.is_byte_quantity());
+    return ComputerQuantity(res, q1.is_byte_quantity());
 }
 
-Quantity (::common::operator/)(Quantity q1, int64_t q2){
+ComputerQuantity (::common::operator/)(ComputerQuantity q1, int64_t q2){
     int64_t n = q1.magnitude();
     int64_t d = q2;
     int64_t res = n / d;
     if(res < 0) ERROR("Negative quantity: " << q1 << " * " << q2);
-    return Quantity(res, q1.is_byte_quantity());
+    return ComputerQuantity(res, q1.is_byte_quantity());
 }
 
-Quantity& Quantity::operator+=(int64_t value) {
+ComputerQuantity& ComputerQuantity::operator+=(int64_t value) {
     int64_t v1 = magnitude();
     int64_t v2 = value;
     int64_t res = v1 + v2;
@@ -222,11 +222,11 @@ Quantity& Quantity::operator+=(int64_t value) {
     return *this;
 }
 
-Quantity& Quantity::operator-=(int64_t value) {
+ComputerQuantity& ComputerQuantity::operator-=(int64_t value) {
     return this->operator+=(-value);
 }
 
-Quantity& Quantity::operator*=(int64_t v2) {
+ComputerQuantity& ComputerQuantity::operator*=(int64_t v2) {
     int64_t v1 = magnitude();
     int64_t res = v1 * v2;
     if(res < 0) ERROR("Negative quantity: " << *this << " * " << v2);
@@ -234,10 +234,203 @@ Quantity& Quantity::operator*=(int64_t v2) {
     return *this;
 }
 
-Quantity& Quantity::operator/=(int64_t d) {
+ComputerQuantity& ComputerQuantity::operator/=(int64_t d) {
     int64_t n = magnitude();
     int64_t res = n / d;
     if(res < 0) ERROR("Negative quantity: " << *this << " * " << d);
     m_magnitude = static_cast<uint64_t>(res);
     return *this;
+}
+
+/**********************************************************************************************************************
+ *                                                                                                                    *
+ *  DurationQuantity                                                                                                  *
+ *                                                                                                                    *
+ **********************************************************************************************************************/
+DurationQuantity::DurationQuantity() : m_duration(0){
+    /* nop */
+}
+
+DurationQuantity::DurationQuantity(uint64_t seconds) : DurationQuantity(chrono::seconds(seconds)) {
+    /* nop */
+}
+
+DurationQuantity::operator uint64_t() const noexcept {
+    return seconds();
+}
+
+uint64_t DurationQuantity::seconds() const noexcept {
+    return chrono::duration_cast<chrono::seconds>(m_duration).count();
+}
+
+DurationQuantity DurationQuantity::parse(const std::string& str_duration){
+    static string pattern { R"raw(^(\d+)?\s*(\w+)?\s*$)raw" }; // kilo, mega, giga tera
+    enum class Unit { HOURS, MINUTES, SECONDS, MILLISECONDS, MICROSECONDS, NANOSECONDS };
+    struct Association { Unit m_unit; string m_string; };
+    static Association associations[] = {
+            {Unit::HOURS, "h"},
+            {Unit::HOURS, "hour"},
+            {Unit::HOURS, "hours"},
+            {Unit::MINUTES, "m"},
+            {Unit::MINUTES, "min"},
+            {Unit::MINUTES, "mins"},
+            {Unit::MINUTES, "minute"},
+            {Unit::MINUTES, "minutes"},
+            {Unit::SECONDS, "s"},
+            {Unit::SECONDS, "sec"},
+            {Unit::SECONDS, "secs"},
+            {Unit::SECONDS, "second"},
+            {Unit::SECONDS, "seconds"},
+            {Unit::MILLISECONDS, "ms"},
+            {Unit::MILLISECONDS, "msec"},
+            {Unit::MILLISECONDS, "msecs"},
+            {Unit::MILLISECONDS, "millisec"},
+            {Unit::MILLISECONDS, "millisecs"},
+            {Unit::MILLISECONDS, "millisecond"},
+            {Unit::MILLISECONDS, "milliseconds"},
+            {Unit::MICROSECONDS, "us"},
+            {Unit::MICROSECONDS, "usec"},
+            {Unit::MICROSECONDS, "usecs"},
+            {Unit::MICROSECONDS, "microsec"},
+            {Unit::MICROSECONDS, "microsecs"},
+            {Unit::MICROSECONDS, "microsecond"},
+            {Unit::MICROSECONDS, "microseconds"},
+            {Unit::NANOSECONDS, "ns"},
+            {Unit::NANOSECONDS, "nsec"},
+            {Unit::NANOSECONDS, "nsecs"},
+            {Unit::NANOSECONDS, "nanosec"},
+            {Unit::NANOSECONDS, "nanosecs"},
+            {Unit::NANOSECONDS, "nanosecond"},
+            {Unit::NANOSECONDS, "nanoseconds"},
+    };
+
+    regex regex{pattern};
+    smatch match;
+    if (!regex_match(begin(str_duration), end(str_duration), match, regex)){ ERROR("Invalid duration: " << str_duration); }
+
+    // if a unit has not been explicitly specified, assume seconds
+    Unit unit = Unit::SECONDS;
+    int64_t duration = stoi( match[1] );
+    if(duration < 0) ERROR("Invalid duration: the given value is negative: " << duration);
+    if(match[2].length() > 0){
+        string str_unit = match[2];
+        transform(begin(str_unit), end(str_unit), begin(str_unit), ::tolower); // lower case
+        uint64_t num_associations = sizeof(associations) / sizeof(associations[0]);
+        bool stop = false;
+        uint64_t i = 0;
+        while(i < num_associations && !stop){
+            if(str_unit == associations[i].m_string){
+                unit = associations[i].m_unit;
+                stop = true;
+            } else {
+                i++;
+            }
+        }
+        if(!stop){
+            ERROR("Invalid duration unit: `" << match[2] << "'");
+        }
+    }
+
+    switch(unit){
+    case Unit::NANOSECONDS:
+        return DurationQuantity(chrono::nanoseconds(duration));
+    case Unit::MICROSECONDS:
+        return DurationQuantity(chrono::microseconds(duration));
+    case Unit::MILLISECONDS:
+        return DurationQuantity(chrono::milliseconds(duration));
+    case Unit::SECONDS:
+        return DurationQuantity(chrono::seconds(duration));
+    case Unit::MINUTES:
+        return DurationQuantity(chrono::minutes(duration));
+    case Unit::HOURS:
+        return DurationQuantity(chrono::hours(duration));
+    default:
+        ERROR("Unit not handled: " << (int) unit);
+    }
+}
+
+std::string DurationQuantity::to_string() const {
+    uint64_t nanoseconds = as<chrono::nanoseconds>().count();
+    uint64_t microseconds = nanoseconds / 1000;
+    if(microseconds > 0) nanoseconds %= 1000;
+    uint64_t milliseconds = microseconds/ 1000;
+    if(milliseconds > 0) microseconds %= 1000;
+    uint64_t seconds = milliseconds / 1000;
+    if(seconds > 0) milliseconds %= 1000;
+    uint64_t minutes = seconds / 60;
+    if(minutes > 0) seconds %= 60;
+    uint64_t hours = minutes / 60;
+    if(hours > 0) minutes %= 60;
+
+    stringstream ss;
+
+    if(hours > 0) {
+        ss << hours << " hour";
+        if(hours > 1){ ss << "s"; }
+
+        if (minutes > 0) {
+            if (seconds > 0) {
+                ss << ", ";
+            } else {
+                ss << " and ";
+            }
+            ss << minutes << " minute";
+            if(minutes > 1) { ss << "s"; }
+        }
+        if (seconds > 0) {
+            ss << " and " << seconds << " second";
+            if(seconds > 1){ ss << "s"; }
+        }
+    } else if (minutes > 0){
+        ss << minutes << " minute";
+        if(minutes > 1) { ss << "s"; }
+        if(seconds > 0){
+            ss << " and " << seconds << " second";
+            if(seconds > 1){ ss << "s"; }
+        }
+    } else if (seconds > 0){
+        ss << seconds;
+        if(milliseconds > 0){
+            ss << "." << milliseconds;
+        }
+        ss << " second";
+        if (seconds > 1) { ss << "s"; }
+    } else if (milliseconds > 0){
+        ss << milliseconds;
+        if(milliseconds < 10 && microseconds > 0){
+            ss << "." << microseconds;
+        }
+        ss << " millisecs";
+    } else if (microseconds > 0){
+        ss << microseconds;
+        if(microseconds < 10 && nanoseconds > 0){
+            ss << "." << nanoseconds;
+        }
+        ss << " microsecs";
+    } else { // nanoseconds
+        ss << nanoseconds << " nanoseconds";
+    }
+
+    return ss.str();
+}
+
+ostream& (::common::operator<<)(ostream& out, const DurationQuantity& q) {
+    out << q.to_string();
+    return out;
+}
+
+ostream& (::common::operator<<)(ostream& out, const DurationQuantity* q){
+    out << "ptr: 0x" << std::hex << (void*) q << std::dec;
+    if(q != nullptr){
+        out << " (" << q->to_string() << ")";
+    }
+    return out;
+}
+
+std::istream& (::common::operator>>)(std::istream& in, common::DurationQuantity& q){
+    string value;
+    in >> value;
+    auto duration_parsed = DurationQuantity::parse(value);
+    q.m_duration = duration_parsed.m_duration;
+    return in;
 }
