@@ -44,7 +44,7 @@ public:
  * Boiler plate to register the PAPI events and start and stop the recording of perf_events.
  */
 class GenericProfiler : public BaseProfiler {
-    static constexpr size_t m_events_capacity = 8;
+    static constexpr int m_events_capacity = 8;
 
 protected:
     int m_events[m_events_capacity];

@@ -77,11 +77,11 @@ protected:
 
     // convert the given absolute index to its actual position in the array
     uint64_t to_array_index(int64_t index) const {
-        if( index >= size() || index < 0 ) throw std::runtime_error("Index out of bounds");
+        if( index >= (int64_t) size() || index < 0 ) throw std::runtime_error("Index out of bounds");
         if( m_end > m_start ){
             return m_start + index;
         } else { // m_end <= m_start
-            if(index < m_capacity - m_start) {
+            if(index < static_cast<int64_t>( m_capacity - m_start )) {
                 return m_start + index;
             } else {
                 return index - (m_capacity - m_start);
