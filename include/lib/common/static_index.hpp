@@ -213,9 +213,6 @@ void StaticIndex<KeyType>::rebuild(uint64_t N){
         N = rightmost_subtree_sz;
         height = rightmost_subtree_height;
     }
-
-    // set the pointer to the first leaf
-//    m_ptr_first_leaf = get_slot(1);
 }
 
 template<typename KeyType>
