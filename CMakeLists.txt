@@ -35,5 +35,5 @@ target_link_libraries(libcommon INTERFACE common)
 
 # Tests
 if(BUILD_TEST)
-    add_subdirectory(test)
+    add_subdirectory(test EXCLUDE_FROM_ALL)
 endif()
