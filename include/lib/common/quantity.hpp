@@ -131,13 +131,13 @@ public:
     /**
      * Init the quantity in terms of seconds
      */
-     DurationQuantity(uint64_t seconds);
+     explicit DurationQuantity(uint64_t seconds);
 
     /**
      * Init the quantity with the given duration
      */
      template<typename D>
-     DurationQuantity(D duration);
+     explicit DurationQuantity(D duration);
 
     /**
      * Return the duration in seconds
