@@ -184,7 +184,7 @@ template<typename KeyType>
 void StaticIndex<KeyType>::rebuild(uint64_t N){
     if(N == 0) throw std::invalid_argument("Invalid number of keys: 0");
     int height = ceil( log2(N) / log2(node_size()) );
-    if(height > m_rightmost_sz){ throw std::invalid_argument("Invalid number of keys/segments: too big"); }
+    if(height > static_cast<int>(m_rightmost_sz)){ throw std::invalid_argument("Invalid number of keys/segments: too big"); }
     uint64_t tree_sz = pow(node_size(), height) -1; // don't store the minimum, segment 0
 
     if(height != m_height){

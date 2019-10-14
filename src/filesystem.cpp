@@ -23,6 +23,7 @@
 #include <cstring>
 #include <iostream>
 #include <libgen.h> // dirname
+#include <memory>
 #include <sstream>
 #include <sys/stat.h>
 #include <sys/unistd.h> // chdir, getcwd, getpid
@@ -78,6 +79,20 @@ string directory_executable(){
 }
 
 
+std::string basename(const std::string& path){
+    auto fn_free = [](const char* s){ ::free((void*) s); };
+    unique_ptr<char, decltype(fn_free)> ptr_dup { strdup(path.c_str()), fn_free };
+    return ::basename(ptr_dup.get());
+}
+
+std::string filename(const std::string& path){
+    return basename(path);
+}
+
+std::string extension(const std::string& path){
+    auto dot = strrchr(path.c_str(), '.');
+    return (dot != nullptr && dot != path.c_str()) ? dot : "";
+}
 
 /******************************************************************************
  *                                                                            *

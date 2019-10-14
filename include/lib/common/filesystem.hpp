@@ -78,6 +78,17 @@ bool is_directory(const std::string& path);
 uint64_t file_size(const std::string& path);
 
 /**
+ * Retrieve the base name of the given path
+ */
+std::string basename(const std::string& path);
+std::string filename(const std::string& path); // alias
+
+/**
+ * Retrieve the extension of the given path
+ */
+std::string extension(const std::string& path);
+
+/**
  * Get the path to the current working directory
  */
 std::string wd();
