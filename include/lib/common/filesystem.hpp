@@ -80,8 +80,7 @@ uint64_t file_size(const std::string& path);
 /**
  * Retrieve the base name of the given path
  */
-std::string basename(const std::string& path);
-std::string filename(const std::string& path); // alias
+std::string filename(const std::string& path);
 
 /**
  * Retrieve the extension of the given path
