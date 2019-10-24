@@ -48,7 +48,6 @@ static string to_microseconds(D duration){
     return result.str();
 }
 
-
 template <typename D>
 static string to_milliseconds(D duration){
     uint64_t time_in_microsecs = (uint64_t) duration_cast<chrono::microseconds>(duration).count();
@@ -65,7 +64,6 @@ static string to_milliseconds(D duration){
 
     return result.str();
 }
-
 
 template <typename D>
 static string to_seconds(D duration){
@@ -127,9 +125,9 @@ string Timer<with_barrier>::to_string() const{
         return to_microseconds(d);
     } else if(time_in_nanosecs <= (uint64_t) pow(10, 9)) {
         return to_milliseconds(d);
-    } else if(time_in_nanosecs <= (uint64_t) pow(10, 12)){
+    } else if(time_in_nanosecs <= (uint64_t) pow(10, 9) * 90){ // 90 seconds
         return to_seconds(d);
-    } else if(time_in_nanosecs <= (uint64_t) pow(10, 12) * 60){
+    } else if(time_in_nanosecs < (uint64_t) pow(10, 9) * 60 * 60){
         return to_minutes(d);
     } else {
         return to_hours(d);
