@@ -197,7 +197,7 @@ TemporaryWorkingDirectory::~TemporaryWorkingDirectory() noexcept(false) {
  *****************************************************************************/
 static void mkdir(const char *); // prototype
 static void mkdir(const char *path){
-    char varpath[PATH_MAX];
+    char varpath[PATH_MAX +1];
     strncpy(varpath, path, PATH_MAX);
     char* parent = dirname(varpath);
     if(!file_exists(string{parent})){
