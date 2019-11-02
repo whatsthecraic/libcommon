@@ -59,6 +59,16 @@ namespace concurrency {
 int64_t get_thread_id();
 
 /**
+ * Get the Linux process id
+ */
+int64_t get_process_id();
+
+/**
+ * Get the number of threads alive in the current process
+ */
+int get_num_threads();
+
+/**
  * Whether NUMA settings are available
  */
 bool has_numa();

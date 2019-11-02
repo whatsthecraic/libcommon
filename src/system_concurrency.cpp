@@ -19,6 +19,7 @@
 
 #include <cassert>
 #include <cerrno>
+#include <cstdio> // popen
 #include <cstring> // strerror
 #include <memory>
 #include <pthread.h>
@@ -45,6 +46,30 @@ int64_t get_thread_id(){
     auto tid = (int64_t) syscall(SYS_gettid);
     assert(tid > 0);
     return tid;
+}
+
+int64_t get_process_id(){
+    auto pid = (int64_t) syscall(SYS_getpid);
+    assert(pid > 0);
+    return pid;
+}
+
+
+int get_num_threads(){
+    stringstream ss;
+    ss << "cat /proc/" << get_process_id() << "/status | awk '/Threads/ {print $2}'";
+    string stmt = ss.str();
+    FILE* file = popen(stmt.c_str(), "r");
+    if(file == nullptr) ERROR("Cannot retrieve the number of threads: " << strerror(errno) << " (errno: " << errno << ")");
+    int num_threads = 0;
+    if (fscanf(file, "%d", &num_threads) == EOF){
+        num_threads = -1;
+    }
+    pclose(file);
+
+    if(num_threads <= 0){ ERROR("Cannot retrieve the number of threads"); }
+
+    return num_threads;
 }
 
 bool has_numa(){
