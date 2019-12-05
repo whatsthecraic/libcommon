@@ -25,6 +25,7 @@
 #include <iostream>
 #include <regex>
 #include <string>
+#include <sys/sysinfo.h> // linux specific
 #include <unistd.h> // chdir, gethostname
 
 #include "error.hpp"
@@ -149,5 +150,11 @@ string git_last_commit(){
     return git_read_last_commit();
 }
 
+uint64_t get_total_ram(){
+    struct sysinfo info;
+    int rc = sysinfo(&info);
+    if(rc != 0) ERROR("[get_total_ram] Invocation to sysinfo() failed: " << strerror(errno) << " (errno: " << errno << ")");
+    return static_cast<uint64_t>(info.totalram) * info.mem_unit;
+}
 
 } // namespace common

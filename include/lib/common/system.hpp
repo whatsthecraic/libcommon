@@ -34,6 +34,12 @@ std::string hostname();
  */
 std::string git_last_commit(); // impl in system_introspection.cpp
 
+
+/**
+ * Retrieve the amount of memory (RAM) available in the system, in bytes
+ */
+uint64_t get_total_ram();
+
 namespace filesystem {
 
 /**
