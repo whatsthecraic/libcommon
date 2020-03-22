@@ -27,6 +27,7 @@
 #include <limits>
 #include <ostream>
 #include <stdexcept>
+#include <string>
 
 namespace common {
 
@@ -197,7 +198,6 @@ void StaticIndex<KeyType>::rebuild(uint64_t N){
 
     // set the height of all rightmost subtrees
     while(height > 0){
-        assert(height > 0);
         uint64_t subtree_sz = pow(node_size(), height -1);
         m_rightmost[height - 1].m_root_sz = (N -1) / subtree_sz;
         assert(m_rightmost[height -1].m_root_sz > 0);
