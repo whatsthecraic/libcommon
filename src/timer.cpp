@@ -17,6 +17,7 @@
 
 #include "timer.hpp"
 
+#include <cinttypes>
 #include <cmath>
 #include <sstream>
 
@@ -87,20 +88,32 @@ static string to_minutes(D duration){
     uint64_t seconds = ((uint64_t) duration_cast<chrono::seconds>(duration).count()) % 60ull;
     uint64_t minutes = (uint64_t) duration_cast<chrono::minutes>(duration).count();
 
-    stringstream result;
-    result << minutes << "." << seconds << " minutes";
-    return result.str();
+    char buffer[128];
+    snprintf(buffer, 128, "%" PRIu64 ":%02" PRIu64 " minutes", minutes, seconds);
+    return string(buffer);
 }
 
 template <typename D>
 static string to_hours(D duration){
     uint64_t seconds = ((uint64_t) duration_cast<chrono::seconds>(duration).count()) % 60ull;
     uint64_t minutes = (uint64_t) duration_cast<chrono::minutes>(duration).count() % 60ull;
-    uint64_t hours = (uint64_t) duration_cast<chrono::hours>(duration).count() % 60ull;
+    uint64_t hours = (uint64_t) duration_cast<chrono::hours>(duration).count();
 
-    stringstream result;
-    result << hours << ":" << minutes << ":" << seconds << " hours";
-    return result.str();
+    char buffer[128];
+    snprintf(buffer, 128, "%" PRIu64 ":%02" PRIu64 ":%02" PRIu64 " hours", hours, minutes, seconds);
+    return string(buffer);
+}
+
+template <typename D>
+static string to_days(D duration){
+    uint64_t seconds = ((uint64_t) duration_cast<chrono::seconds>(duration).count()) % 60ull;
+    uint64_t minutes = (uint64_t) duration_cast<chrono::minutes>(duration).count() % 60ull;
+    uint64_t hours = (uint64_t) duration_cast<chrono::hours>(duration).count() % 24ull;
+    uint64_t days = (uint64_t) duration_cast<chrono::hours>(duration).count() / 24;
+
+    char buffer[128];
+    snprintf(buffer, 128, "%" PRIu64 " day(s) and %" PRIu64 ":%02" PRIu64 ":%02" PRIu64 " hours", days, hours, minutes, seconds);
+    return string(buffer);
 }
 
 template <bool with_barrier>
@@ -129,8 +142,10 @@ string Timer<with_barrier>::to_string() const{
         return to_seconds(d);
     } else if(time_in_nanosecs < (uint64_t) pow(10, 9) * 60 * 60){
         return to_minutes(d);
-    } else {
+    } else if(time_in_nanosecs < (uint64_t) pow(10, 9) * 60 * 60 * 24){
         return to_hours(d);
+    } else {
+        return to_days(d);
     }
 }
 
