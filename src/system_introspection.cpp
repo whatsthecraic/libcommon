@@ -157,4 +157,25 @@ uint64_t get_total_ram(){
     return static_cast<uint64_t>(info.totalram) * info.mem_unit;
 }
 
+Statm statm() {
+    fstream f("/proc/self/statm", ios_base::in);
+    if(!f.good()){ ERROR("[statm] Cannot access /proc/self/statm"); }
+
+    Statm s;
+    f >> s.m_vmsize;
+    f >> s.m_rss;
+    f >> s.m_shared;
+    f >> s.m_text;
+    f >> s.m_lib;
+    f >> s.m_data;
+    f >> s.m_dt;
+
+    f.close();
+    return s;
+}
+
+uint64_t get_memory_footprint() {
+    return statm().m_data * /* 4 Kb */ (1<<12);
+}
+
 } // namespace common

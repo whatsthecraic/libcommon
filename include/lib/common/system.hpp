@@ -34,11 +34,33 @@ std::string hostname();
  */
 std::string git_last_commit(); // impl in system_introspection.cpp
 
-
 /**
  * Retrieve the amount of memory (RAM) available in the system, in bytes
  */
 uint64_t get_total_ram();
+
+/**
+ * The information parsed from /proc/self/statm, apparently as multiples of 4Kb pages
+ */
+struct Statm {
+    uint64_t m_vmsize; // total virtual memory, in 4kb pages
+    uint64_t m_rss; // resident set size, in 4kb pages
+    uint64_t m_shared; // number of resident shared pages (i.e., backed by a file)
+    uint64_t m_text; // text segment, in 4kb pages
+    uint64_t m_lib; // always 0
+    uint64_t m_data; // data + stack, in 4kb pages
+    uint64_t m_dt; // always 0
+};
+
+/**
+ * Retrieve the content of /proc/self/statm
+ */
+Statm statm();
+
+/**
+ * Retrieve the total memory footprint of this process (excluding the text segment), in bytes
+ */
+uint64_t get_memory_footprint();
 
 namespace filesystem {
 
