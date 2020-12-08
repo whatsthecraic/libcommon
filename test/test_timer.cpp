@@ -12,9 +12,9 @@ TEST(Timer, basic_usage){
     t.start();
     sleep(1);
     t.stop();
-    ASSERT_EQ(t.to_string(), string{"1.000 seconds"});
+    ASSERT_EQ(t.to_string(), string{"1.000 s"});
     t.resume();
     sleep(1);
     t.stop();
-    ASSERT_EQ(t.to_string(), string{"2.000 seconds"});
+    ASSERT_EQ(t.to_string(), string{"2.000 s"});
 }
