@@ -20,12 +20,11 @@
 #include <algorithm>
 #include <cstdint>
 #include <future>
-#include <iostream>
 #include <memory>
 #include <thread>
 #include <vector>
 
-#include "lib/common/sampling.hpp"
+#include "../sampling.hpp"
 
 namespace common::details::sorting {
 
@@ -34,7 +33,7 @@ namespace common::details::sorting {
     void partition(T*  __restrict array, uint64_t array_sz, const FunctionLess& fn_less, const T* __restrict samples, uint64_t* __restrict intervals, uint64_t num_samples) {
         for(uint64_t i = 0; i < array_sz; i++){
             int64_t k = num_samples -1;
-            int64_t position = i;
+            uint64_t position = i;
             while(k >= 0 && fn_less(array[position], samples[k]) ){
                 if(position > intervals[k]){
                     std::swap(array[position], array[intervals[k]]);
@@ -49,13 +48,13 @@ namespace common::details::sorting {
         }
     }
 
-    // Sort input the array
+    // Sort the input array
     // Based on the sample sort procedure of Section § 5.7.2 in
     // K. Mehlhorn, P. Sanders, Algorithms and Data Structures. The Basic Toolbox, Springer 2008.
     template<typename T, typename FunctionLess>
-    void implementation(T* array, uint64_t array_sz, const FunctionLess& fn_less, uint64_t num_samples = std::thread::hardware_concurrency() * 4){
+    void implementation(T* array, uint64_t array_sz, const FunctionLess& fn_less, uint64_t num_samples = std::thread::hardware_concurrency()){
         // samples => O(k), k = num samples
-        if(num_samples * 10 < array_sz){ std::sort(array, array + array_sz, fn_less); return; }
+        if(num_samples >= array_sz){ std::sort(array, array + array_sz, fn_less); return; }
         std::unique_ptr<T[]> ptr_samples { new T[num_samples]() };
         std::unique_ptr<uint64_t[]> ptr_intervals { new uint64_t[num_samples]() };
         T* samples = ptr_samples.get();
@@ -87,7 +86,6 @@ namespace common::details::sorting {
 
         for(auto& t: tasks){ t.get(); }; // wait for all the tasks to complete
     }
-
 
 } // namespace
 
