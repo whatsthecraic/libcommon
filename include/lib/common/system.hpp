@@ -161,6 +161,97 @@ void set_thread_name(uint64_t thread_id, const std::string& name);
 
 } // concurrency
 
+
+/**
+ * The compiler family being used
+ */
+enum class CompilerFamily { UNKNOWN, GCC, CLANG, INTEL };
+
+/**
+ * Detect on which compiler the source file has been compiled
+ */
+class CompilerInfo {
+    CompilerFamily m_family = CompilerFamily::UNKNOWN; // the compiler family
+    std::string m_name; // the name of the compiler
+    int m_major = 0; // the major version
+    int m_minor = 0; // the minor version
+    int m_patch = 0; // the patch level
+
+public:
+    /**
+     * Detect the compiler being used to build this file
+     */
+    CompilerInfo();
+
+    /**
+     * Get the compiler family
+     */
+    CompilerFamily family() const;
+
+    /**
+     * Get the name of the compiler
+     */
+    std::string name() const;
+
+    /**
+     * Get the major version of the compiler
+     */
+    int major() const;
+
+    /**
+     * Get the minor version of the compiler
+     */
+    int minor() const;
+
+    /**
+     * Get the patch level of the compiler
+     */
+    int patch() const;
+
+    /**
+     * Get a string description of the version of the compiler
+     */
+    std::string version() const;
+
+    /**
+     * Get a string representation of the compiler detected
+     */
+    std::string to_string() const;
+};
+
+// Overload of the out operator
+std::ostream& operator<<(std::ostream& out, const CompilerInfo& ci);
+
+
+/******************************************************************************
+ *                                                                            *
+ * Implementation details                                                     *
+ *                                                                            *
+ *****************************************************************************/
+inline
+CompilerInfo::CompilerInfo(){
+#if defined(__clang__)
+    m_family = CompilerFamily::CLANG;
+    m_name = "Clang";
+    m_major = __clang_major__;
+    m_minor = __clang_minor__;
+    m_patch = __clang_patchlevel__;
+#elif defined(__INTEL_COMPILER)
+    m_family = CompilerFamily::INTEL;
+    m_name = "ICC";
+    m_major = __INTEL_COMPILER / 100;
+    m_minor = __INTEL_COMPILER % 100;
+    m_patch = __INTEL_COMPILER_UPDATE;
+#elif defined(__GNUC__)
+    m_family = CompilerFamily::GCC;
+    m_name = "GCC";
+    m_major = __GNUC__;
+    m_minor = __GNUC_MINOR__;
+    m_patch = __GNUC_PATCHLEVEL__;
+#endif
+}
+
+
 } // common
 
 

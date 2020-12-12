@@ -11,6 +11,7 @@ add_library(common EXCLUDE_FROM_ALL
     permutation.cpp
     profiler.cpp
     quantity.cpp
+    system_compiler.cpp
     system_concurrency.cpp
     system_introspection.cpp
     timer.cpp
